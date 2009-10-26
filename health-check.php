@@ -23,13 +23,24 @@ class health_check {
 		if (!current_user_can('manage_options'))
 		{
 			wp_die( __('You do not have sufficient permissions to access this page.') );
-		}		
+		}
+		//Lazy load all the tests we will run
+		health_check::load_tests();
 ?>
 	<div class="wrap">
 		<?php screen_icon(); ?>
-		<h2><?php _e('Health Check','health_check')?></h2>
+		<h2><?php _e('Health Check','health_check'); ?></h2>
+		<p><?php _e('Welcome to your WordPress health check centre.','health_check');?></p>
+		<p><?php _e('I am now going to run a number of tests on your site and report back on any issues I find.','health_check');?></p>
+		<?php do_action('health_check_run_tests'); ?>
 	</div>
 <?php
+	}
+	
+	function load_tests() {
+		//TODO include the test files.
+		$tests_dir = plugin_dir_path(__FILE__) . 'tests/';
+		require_once($tests_dir . 'php-configuration.php');
 	}
 }
 /* Initialise outselves */
