@@ -12,7 +12,6 @@ class health_check {
 	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('health_check', 'action_admin_menu'));
-		add_action('update_option_wp_beta_tester_stream', array('health_check', 'action_update_option_wp_beta_tester_stream'));
 	}
 
 	function action_admin_menu() {
