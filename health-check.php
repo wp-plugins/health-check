@@ -3,9 +3,9 @@
 	Plugin Name: Health Check
 	Plugin URI: http://wordpress.org/extend/plugins/health-check/
 	Description: Checks the health of your WordPress install
-	Author: Peter Westwood
+	Author: The Health Check Team
 	Version: 0.1-alpha
-	Author URI: http://blog.ftwr.co.uk/
+	Author URI: http://wordpress.org/extend/plugins/health-check/
  */
 
 class health_check {
