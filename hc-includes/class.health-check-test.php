@@ -41,5 +41,22 @@ class HealthCheckTest {
 		}
 		return $this->result->passed;
 	}
+	
+	/**
+	 * Check that $actual is true
+	 * 
+	 * @param mixed $actual The actual value
+	 * @param string $message The message to display if they don't match
+	 * @param int $severity The severity if they don't match
+	 * @return bool Whether or not it was equal.
+	 */
+	function assertTrue($actual, $message, $severity) {
+		if ( !$actual ) {
+			$this->result->markAsFailed($message, $severity);
+		} else {
+			$this->result->markAsPassed();
+		}
+		return $this->result->passed;
+	}
 }
 ?>
