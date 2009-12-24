@@ -16,5 +16,5 @@ class HealthCheck_DummyTest extends HealthCheckTest {
 	}
 }
 
-HealthCheck::register_test('HealthCheck_DummyTests');
+HealthCheck::register_test('HealthCheck_DummyTest');
 ?>
