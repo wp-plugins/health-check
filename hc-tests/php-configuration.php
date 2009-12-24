@@ -27,4 +27,19 @@ class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
+
+/**
+ * Check that we are running at least PHP 5
+ * 
+ * @todo Provide a link to a codex article
+ * @link http://core.trac.wordpress.org/ticket/9751
+ * @author peterwestwood
+ *
+ */
+class HealthCheck_PHP_Version extends HealthCheckTest {
+	function run_test() {
+		$this->assertTrue(version_compare('5.0.0', PHP_VERSION, '<'), sprintf( __( 'Your Webserver is currently using PHP version %s, which is no longer recieving security updates and will no longer be supported by WordPress in an upcoming version', 'health-check' ), PHP_VERSION ), HEALTH_CHECK_WARNING );
+	}
+}
+HealthCheck::register_test('HealthCheck_PHP_Version');
 ?>
