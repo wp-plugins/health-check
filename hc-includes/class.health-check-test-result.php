@@ -28,14 +28,20 @@ class HealthCheckTestResult {
 	/**
 	 * Mark this test result as a failure.
 	 * 
-	 * @param $message Message to display to the user
-	 * @param $severity Optional. Severity level for this failure default is HEALTH_CHECK_ERROR.
+	 * @param string $message Message to display to the user
+	 * @param int $severity Optional. Severity level for this failure default is HEALTH_CHECK_ERROR.
 	 * @return none
 	 */
 	function markAsFailed($message, $severity = HEALTH_CHECK_ERROR) {
 		$this->passed = false;
 		$this->message = $message;
 		$this->severity = $severity;
+	}
+
+	function markAsPassed() {
+		$this->passed = true;
+		$this->message = '';
+		$this->severity = HEALTH_CHECK_OK;
 	}
 }
 ?>
