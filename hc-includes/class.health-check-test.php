@@ -23,5 +23,23 @@ class HealthCheckTest {
 	function run_test() {
 		$this->result->markAsFailed(__('ERROR: Test class does not implement run_test()','health_check'));
 	}
+	
+	/**
+	 * Check that $expected and $actual are equal
+	 * 
+	 * @param mixed $expected The expected value
+	 * @param mixed $actual The actual value
+	 * @param string $message The message to display if they don't match
+	 * @param int $severity The severity if they don't match
+	 * @return bool Whether or not it was equal.
+	 */
+	function assertEquals($expected, $actual, $message, $severity) {
+		if ( $expected !== $actual ) {
+			$this->result->markAsFailed($message, $severity);
+		} else {
+			$this->result->markAsPassed();
+		}
+		return $this->result->passed;
+	}
 }
 ?>
