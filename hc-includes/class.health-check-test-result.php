@@ -33,7 +33,7 @@ class HealthCheckTestResult {
 	 * @return none
 	 */
 	function markAsFailed($message, $severity = HEALTH_CHECK_ERROR) {
-		$this->passed = $false;
+		$this->passed = false;
 		$this->message = $message;
 		$this->severity = $severity;
 	}
