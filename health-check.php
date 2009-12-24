@@ -10,6 +10,11 @@
 
 class HealthCheck {
 	
+	/*
+	 * An array containing the names of all the classes that have registered as tests.
+	 */
+	static $registered_tests = array();
+	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
 	}
@@ -50,11 +55,33 @@ class HealthCheck {
 	}
 	
 	function run_tests() {
-		//TODO
+		foreach (HealthCheck::$registered_tests as $classname) {
+			if ( class_exists( $classname ) ) {
+				$class = new $classname;
+				if (HealthCheck::_is_health_check_test($class) ) {
+					$class->run_test();
+					$res = $class->result;
+				} else {
+					$res = new HealthCheckTestResult();
+					$res->markAsFailed( sprintf( __('Class %s has been registered as a test but it is not a subclass of HealthCheckTest.'), $classname), HEALTH_CHECK_ERROR);
+				}
+			} else {
+				$res = new HealthCheckTestResult();
+				$res->markAsFailed( __('Class %s has been registered as a test but it has not been defined.'), HEALTH_CHECK_ERROR);
+			}
+			//TODO better formatting
+			echo $res->message;
+		}
 	}
 	
-	function register_test() {
-		//TODO
+	/**
+	 * Make note of the name of the registered test class ready for when we want to run the tests.
+	 * 
+	 * @param string $classname The name of a class which subclasses HealthCheckTest.
+	 * @return none
+	 */
+	function register_test($classname) {
+		HealthCheck::$registered_tests[] = $classname;
 	}
 	/**
 	 * Load all the test classes we have.
@@ -65,6 +92,8 @@ class HealthCheck {
 	 */
 	function load_tests() {
 		$hc_tests_dir = plugin_dir_path(__FILE__) . 'hc-tests/';
+		if ( WP_DEBUG )
+			require_once($hc_tests_dir . 'dummy-test.php');
 		require_once($hc_tests_dir . 'php-configuration.php');
 	}
 	
@@ -84,6 +113,10 @@ class HealthCheck {
 	 */
 	function _fetch_array_key( $array, $key, $default = '' ) {
 		return isset( $array[$key] )? $array[$key] : $default;
+	}
+	
+	function _is_health_check_test( $object ) {
+		return is_subclass_of( $object, 'HealthCheckTest');
 	}
 }
 /* Initialise outselves */
