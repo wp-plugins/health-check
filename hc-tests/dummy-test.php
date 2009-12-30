@@ -13,7 +13,9 @@
  */
 class HealthCheck_DummyTest_Pass extends HealthCheckTest {
 	function run_test() {
-		$this->result->markAsPassed( __( 'Dummy Test Ran ok.', 'health_check' ) );
+		$result = new HealthCheckTestResult();
+		$result->markAsPassed( __( 'Dummy Test Ran ok.', 'health_check' ) );
+		$this->results[] = $result;
 	}
 }
 
@@ -26,7 +28,7 @@ HealthCheck::register_test( 'HealthCheck_DummyTest_Pass' );
  */
 class HealthCheck_DummyTest_Recommendation extends HealthCheckTest {
 	function run_test() {
-		$this->result->markAsFailed( __( 'Dummy Test Ran ok.', 'health_check' ), HEALTH_CHECK_RECOMMENDATION );
+		$this->assertTrue(false, __( 'Dummy Test Ran ok.', 'health_check' ), HEALTH_CHECK_RECOMMENDATION );
 	}
 }
 
@@ -39,7 +41,7 @@ HealthCheck::register_test( 'HealthCheck_DummyTest_Recommendation' );
  */
 class HealthCheck_DummyTest_Error extends HealthCheckTest {
 	function run_test() {
-		$this->result->markAsFailed( __( 'Dummy Test Ran ok.', 'health_check' ) );
+		$this->assertTrue(false, __( 'Dummy Test Ran ok.', 'health_check' ) );
 	}
 }
 

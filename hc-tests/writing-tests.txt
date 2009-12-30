@@ -9,6 +9,3 @@ The base class has utility functions to assert different results and store an me
 
 The php-configuration tests show the framework in its simplest usage.
 The dummy tests should not be used as a basis for developing tests as they access the results object directly and this is discouraged.
-
-== TODO ==
-Support test classes running a large number of assertions so that you don't have to have a class per assertion

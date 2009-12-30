@@ -16,6 +16,7 @@ class HealthCheck {
 	static $registered_tests = array();
 	static $test_results = array();
 	static $tests_run = 0;
+	static $assertions = 0;
 	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
@@ -63,22 +64,29 @@ class HealthCheck {
 	 */
 	function run_tests() {
 		foreach (HealthCheck::$registered_tests as $classname) {
+			$results = array();
+			
 			if ( class_exists( $classname ) ) {
 				$class = new $classname;
 				if (HealthCheck::_is_health_check_test($class) ) {
 					$class->run_test();
-					$res = $class->result;
+					$results = $class->results;
+					HealthCheck::$tests_run++;
+					HealthCheck::$assertions += $class->assertions;
 				} else {
 					$res = new HealthCheckTestResult();
 					$res->markAsFailed( sprintf( __('Class %s has been registered as a test but it is not a subclass of HealthCheckTest.'), $classname), HEALTH_CHECK_ERROR);
+					$results[] = $res;
 				}
 			} else {
 				$res = new HealthCheckTestResult();
 				$res->markAsFailed( __('Class %s has been registered as a test but it has not been defined.'), HEALTH_CHECK_ERROR);
+				$results[] = $res;
 			}
 			// Save results grouped by severity
-			HealthCheck::$test_results[$res->severity][] = $res;
-			HealthCheck::$tests_run++;
+			foreach ($results as $res) {
+				HealthCheck::$test_results[$res->severity][] = $res;
+			}
 		}
 	}
 	
@@ -87,7 +95,7 @@ class HealthCheck {
 		$errors				= empty( HealthCheck::$test_results[HEALTH_CHECK_ERROR] )			? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests run %2$d passed, %3$d detected errors, and %4$d have recommendations.','health_check'), HealthCheck::$tests_run, $passed, $errors, $recommendations );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health_check'), HealthCheck::$tests_run, HealthCheck::$assertions, $passed, $errors, $recommendations );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
@@ -132,8 +140,8 @@ class HealthCheck {
 	 */
 	function load_tests() {
 		$hc_tests_dir = plugin_dir_path(__FILE__) . 'hc-tests/';
-		if ( WP_DEBUG )
-			require_once($hc_tests_dir . 'dummy-test.php');
+		//Uncomment for testing purposes only
+		//require_once($hc_tests_dir . 'dummy-test.php');
 		require_once($hc_tests_dir . 'php-configuration.php');
 	}
 

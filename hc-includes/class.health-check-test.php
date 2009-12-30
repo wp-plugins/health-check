@@ -14,14 +14,14 @@
  *
  */
 class HealthCheckTest {
-	var $result = null;
-	
-	function HealthCheckTest() {
-		$this->result = new HealthCheckTestResult();	
-	}
+	//Store all the test results
+	var $results = array();
+	//Count the number of assertions in this test
+	var $assertions = 0;
 	
 	function run_test() {
-		$this->result->markAsFailed(__('ERROR: Test class does not implement run_test()','health_check'));
+		// If this has not been overridden then the test will always fail
+		$this->assertTrue(false, __('ERROR: Test class does not implement run_test()','health_check'), HEALTH_CHECK_ERROR);
 	}
 	
 	/**
@@ -33,13 +33,18 @@ class HealthCheckTest {
 	 * @param int $severity The severity if they don't match
 	 * @return bool Whether or not it was equal.
 	 */
-	function assertEquals($expected, $actual, $message, $severity) {
+	function assertEquals($expected, $actual, $message, $severity = HEALTH_CHECK_ERROR) {
+		$result = new HealthCheckTestResult();
 		if ( $expected !== $actual ) {
-			$this->result->markAsFailed($message, $severity);
+			$result->markAsFailed($message, $severity);
 		} else {
-			$this->result->markAsPassed();
+			$result->markAsPassed();
 		}
-		return $this->result->passed;
+		
+		$this->results[] = $result;
+		$this->assertions++;
+		
+		return $result->passed;
 	}
 	
 	/**
@@ -50,13 +55,18 @@ class HealthCheckTest {
 	 * @param int $severity The severity if they don't match
 	 * @return bool Whether or not it was equal.
 	 */
-	function assertTrue($actual, $message, $severity) {
+	function assertTrue($actual, $message, $severity = HEALTH_CHECK_ERROR) {
+		$result = new HealthCheckTestResult();
 		if ( !$actual ) {
-			$this->result->markAsFailed($message, $severity);
+			$result->markAsFailed($message, $severity);
 		} else {
-			$this->result->markAsPassed();
+			$result->markAsPassed();
 		}
-		return $this->result->passed;
+		
+		$this->results[] = $result;
+		$this->assertions++;
+		
+		return $result->passed;
 	}
 }
 ?>
