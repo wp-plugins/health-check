@@ -32,7 +32,12 @@ class HealthCheck {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
 		}
 		
-		$step = HealthCheck::_fetch_array_key($_GET, 'step', 0);
+		//Check the nonce and otherwise only display the entry page
+		if ( HealthCheck::_verify_nonce('health-check') ) {
+			$step = HealthCheck::_fetch_array_key($_GET, 'step', 0);
+		} else {
+			$step = 0;
+		}
 		
 ?>
 	<div class="wrap">
@@ -43,9 +48,9 @@ class HealthCheck {
 		if (0 == $step) {
 ?>
 		<p><?php _e('Click on go to run a number of tests on your site and report back on any issues.','health_check');?></p>
-		<p class="submit"><a type="submit" class="button-primary" href="<?php echo admin_url("tools.php?page=health_check&step=1");?>"><?php _e('Go','health_check') ?></a></p>
+		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health_check&step=1'), 'health-check');?>"><?php _e('Go','health_check') ?></a></p>
 <?php
-		} else {
+		} elseif ( 1 == $step ) {
 			//Lazy load our includes and all the tests we will run
 			HealthCheck::load_includes();
 			HealthCheck::load_tests();
@@ -171,6 +176,17 @@ class HealthCheck {
 	 */
 	function _is_health_check_test( $object ) {
 		return is_subclass_of( $object, 'HealthCheckTest');
+	}
+
+	/**
+	 * Verify the nonce in the url
+	 * 
+	 * @param $action The nonce action to verify
+	 * @return bool Whether or not it verified
+	 */
+	function _verify_nonce($action) {
+		$_wpnonce = isset($_REQUEST['_wpnonce']) ? $_REQUEST['_wpnonce'] : '';
+		return wp_verify_nonce($_wpnonce, $action);
 	}
 }
 /* Initialise outselves */
