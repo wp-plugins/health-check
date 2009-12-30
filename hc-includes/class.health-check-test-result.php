@@ -38,9 +38,15 @@ class HealthCheckTestResult {
 		$this->severity = $severity;
 	}
 
-	function markAsPassed() {
+	/**
+	 * Mark this test result as a success.
+	 * 
+	 * @param string $message Optional Message to display to the user
+	 * @return none
+	 */
+	function markAsPassed($message = '') {
 		$this->passed = true;
-		$this->message = '';
+		$this->message = $message;
 		$this->severity = HEALTH_CHECK_OK;
 	}
 }
