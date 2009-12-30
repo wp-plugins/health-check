@@ -46,7 +46,30 @@ class HealthCheckTest {
 		
 		return $result->passed;
 	}
-	
+
+	/**
+	 * Check that $expected and $actual are not equal
+	 * 
+	 * @param mixed $expected The unexpected value
+	 * @param mixed $actual The actual value
+	 * @param string $message The message to display if they don't match
+	 * @param int $severity The severity if they don't match
+	 * @return bool Whether or not it was equal.
+	 */
+	function assertNotEquals($unexpected, $actual, $message, $severity = HEALTH_CHECK_ERROR) {
+		$result = new HealthCheckTestResult();
+		if ( $unexpected === $actual ) {
+			$result->markAsFailed($message, $severity);
+		} else {
+			$result->markAsPassed();
+		}
+		
+		$this->results[] = $result;
+		$this->assertions++;
+		
+		return $result->passed;
+	}
+
 	/**
 	 * Check that $actual is true
 	 * 
@@ -58,6 +81,28 @@ class HealthCheckTest {
 	function assertTrue($actual, $message, $severity = HEALTH_CHECK_ERROR) {
 		$result = new HealthCheckTestResult();
 		if ( !$actual ) {
+			$result->markAsFailed($message, $severity);
+		} else {
+			$result->markAsPassed();
+		}
+		
+		$this->results[] = $result;
+		$this->assertions++;
+		
+		return $result->passed;
+	}
+
+	/**
+	 * Check that $actual is false
+	 * 
+	 * @param mixed $actual The actual value
+	 * @param string $message The message to display if they don't match
+	 * @param int $severity The severity if they don't match
+	 * @return bool Whether or not it was equal.
+	 */
+	function assertFalse($actual, $message, $severity = HEALTH_CHECK_ERROR) {
+		$result = new HealthCheckTestResult();
+		if ( $actual ) {
 			$result->markAsFailed($message, $severity);
 		} else {
 			$result->markAsPassed();
