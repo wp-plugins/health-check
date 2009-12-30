@@ -14,6 +14,8 @@ class HealthCheck {
 	 * An array containing the names of all the classes that have registered as tests.
 	 */
 	static $registered_tests = array();
+	static $test_results = array();
+	static $tests_run = 0;
 	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
@@ -41,19 +43,24 @@ class HealthCheck {
 ?>
 		<p><?php _e('Click on go to run a number of tests on your site and report back on any issues.','health_check');?></p>
 		<p class="submit"><a type="submit" class="button-primary" href="<?php echo admin_url("tools.php?page=health_check&step=1");?>"><?php _e('Go','health_check') ?></a></p>
-		
 <?php
 		} else {
 			//Lazy load our includes and all the tests we will run
 			HealthCheck::load_includes();
 			HealthCheck::load_tests();
 			HealthCheck::run_tests();
+			HealthCheck::output_test_stats();
 		}
 ?>
 	</div>
 <?php
 	}
 	
+	/**
+	 * Run all the tests that have been registered and store the results for outputting in a sorted fashion
+	 * 
+	 * @return none
+	 */
 	function run_tests() {
 		foreach (HealthCheck::$registered_tests as $classname) {
 			if ( class_exists( $classname ) ) {
@@ -69,8 +76,40 @@ class HealthCheck {
 				$res = new HealthCheckTestResult();
 				$res->markAsFailed( __('Class %s has been registered as a test but it has not been defined.'), HEALTH_CHECK_ERROR);
 			}
-			//TODO better formatting
-			echo $res->message;
+			// Save results grouped by severity
+			HealthCheck::$test_results[$res->severity][] = $res;
+			HealthCheck::$tests_run++;
+		}
+	}
+	
+	function output_test_stats() {
+		$passed				= empty( HealthCheck::$test_results[HEALTH_CHECK_OK] )				? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_OK] );
+		$errors				= empty( HealthCheck::$test_results[HEALTH_CHECK_ERROR] )			? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_ERROR] );
+		$recommendations	= empty( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] );
+?>
+		<p><?php echo sprintf( __('Out of %1$d tests run %2$d passed, %3$d detected errors, and %4$d have recommendations.','health_check'), HealthCheck::$tests_run, $passed, $errors, $recommendations );?></p>
+<?php
+		if ($errors) {
+			echo '<div id="health-check-errors">';
+			foreach (HealthCheck::$test_results[HEALTH_CHECK_ERROR] as $res) {
+				echo sprintf( __('ERROR: %s') ,$res->message) . '<br/>';
+			}
+			echo '</div>';
+		}
+		if ($recommendations) {
+			echo '<div id="health-check-recommendations">';
+			foreach (HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
+				echo sprintf( __('RECOMMENDATION: %s') ,$res->message) . '<br/>';
+			}
+			echo '</div>';
+		}
+		if ($passed) {
+			echo '<div id="health-check-ok">';
+			foreach (HealthCheck::$test_results[HEALTH_CHECK_OK] as $res) {
+				if ( !empty($res->message) )
+					echo $res->message . '<br/>';
+			}
+			echo '</div>';
 		}
 	}
 	
@@ -83,6 +122,7 @@ class HealthCheck {
 	function register_test($classname) {
 		HealthCheck::$registered_tests[] = $classname;
 	}
+
 	/**
 	 * Load all the test classes we have.
 	 * 
@@ -96,7 +136,7 @@ class HealthCheck {
 			require_once($hc_tests_dir . 'dummy-test.php');
 		require_once($hc_tests_dir . 'php-configuration.php');
 	}
-	
+
 	/**
 	 * Load in our include files.
 	 * 
@@ -107,14 +147,20 @@ class HealthCheck {
 		require_once($hc_includes . 'class.health-check-test.php');
 		require_once($hc_includes . 'class.health-check-test-result.php');
 	}
-	
+
 	/**
 	 * Retrieves a value from an array by key without a notice
 	 */
 	function _fetch_array_key( $array, $key, $default = '' ) {
 		return isset( $array[$key] )? $array[$key] : $default;
 	}
-	
+
+	/**
+	 * Check to see if the supplied object is an instance of a class which extends HealthCheckTest
+	 * 
+	 * @param object $object The objct to check
+	 * @return bool True if it is, false if it isn't
+	 */
 	function _is_health_check_test( $object ) {
 		return is_subclass_of( $object, 'HealthCheckTest');
 	}
