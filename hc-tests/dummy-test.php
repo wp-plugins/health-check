@@ -1,20 +1,48 @@
 <?php
 /**
- * Dummy test to check that everything is working.
+ * Dummy tests to check that everything is working.
  *
  * @package HealthCheck
  * @subpackage Tests
  */
+
 /**
- * Dummy test to check that everything is working.
+ * Dummy test to check that everything is working for passing tests.
  * @author peterwestwood
  *
  */
-class HealthCheck_DummyTest extends HealthCheckTest {
+class HealthCheck_DummyTest_Pass extends HealthCheckTest {
 	function run_test() {
-		$this->result->markAsFailed(__('Dummy Test Ran ok.','health_check'), HEALTH_CHECK_OK);
+		$this->result->markAsPassed( __( 'Dummy Test Ran ok.', 'health_check' ) );
 	}
 }
 
-HealthCheck::register_test('HealthCheck_DummyTest');
+HealthCheck::register_test( 'HealthCheck_DummyTest_Pass' );
+
+/**
+ * Dummy test to check that everything is working for failing with recommendation tests.
+ * @author peterwestwood
+ *
+ */
+class HealthCheck_DummyTest_Recommendation extends HealthCheckTest {
+	function run_test() {
+		$this->result->markAsFailed( __( 'Dummy Test Ran ok.', 'health_check' ), HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+
+HealthCheck::register_test( 'HealthCheck_DummyTest_Recommendation' );
+
+/**
+ * Dummy test to check that everything is working for failing with error tests.
+ * @author peterwestwood
+ *
+ */
+class HealthCheck_DummyTest_Error extends HealthCheckTest {
+	function run_test() {
+		$this->result->markAsFailed( __( 'Dummy Test Ran ok.', 'health_check' ) );
+	}
+}
+
+HealthCheck::register_test( 'HealthCheck_DummyTest_Error' );
+
 ?>
