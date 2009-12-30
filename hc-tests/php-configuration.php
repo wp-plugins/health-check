@@ -44,4 +44,30 @@ class HealthCheck_PHP_Version extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_Version');
+
+/**
+ * Check libxml2 versions for known issue with XML-RPC
+ * 
+ * Based on code in Joseph Scott's libxml2-fix plugin
+ * which you should install if this test fails for you
+ * as a stop gap solution whilest you get your server upgraded
+ * 
+ * @link http://josephscott.org/code/wordpress/plugin-libxml2-fix/
+ * @link http://core.trac.wordpress.org/ticket/7771
+ * 
+ * @author peterwestwood
+ */
+class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. You can read more <a href="http://josephscott.org/code/wordpress/plugin-libxml2-fix/">here</a>', 'health-check'),
+							PHP_VERSION,
+							LIBXML_DOTTED_VERSION);
+		$this->assertNotEquals( '2.6.27', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
+		$this->assertNotEquals( '2.7.0', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
+		$this->assertNotEquals( '2.7.1', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
+		$this->assertNotEquals( '2.7.2', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
+		$this->assertFalse( ( LIBXML_DOTTED_VERSION == '2.7.3' && version_compare( PHP_VERSION, '5.2.9', '<' ) ), $message, HEALTH_CHECK_ERROR );
+	}
+}
+HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
 ?>
