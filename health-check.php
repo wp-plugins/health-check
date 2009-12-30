@@ -13,13 +13,14 @@ class HealthCheck {
 	/*
 	 * An array containing the names of all the classes that have registered as tests.
 	 */
-	static $registered_tests = array();
-	static $test_results = array();
-	static $tests_run = 0;
-	static $assertions = 0;
+	var $registered_tests = array();
+	var $test_results = array();
+	var $tests_run = 0;
+	var $assertions = 0;
 	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
+		$GLOBALS['_HealthCheck_Instance'] = new HealthCheck();
 	}
 
 	function action_admin_menu() {
@@ -68,7 +69,7 @@ class HealthCheck {
 	 * @return none
 	 */
 	function run_tests() {
-		foreach (HealthCheck::$registered_tests as $classname) {
+		foreach ($GLOBALS['_HealthCheck_Instance']->registered_tests as $classname) {
 			$results = array();
 			
 			if ( class_exists( $classname ) ) {
@@ -76,8 +77,8 @@ class HealthCheck {
 				if (HealthCheck::_is_health_check_test($class) ) {
 					$class->run_test();
 					$results = $class->results;
-					HealthCheck::$tests_run++;
-					HealthCheck::$assertions += $class->assertions;
+					$GLOBALS['_HealthCheck_Instance']->tests_run++;
+					$GLOBALS['_HealthCheck_Instance']->assertions += $class->assertions;
 				} else {
 					$res = new HealthCheckTestResult();
 					$res->markAsFailed( sprintf( __('Class %s has been registered as a test but it is not a subclass of HealthCheckTest.'), $classname), HEALTH_CHECK_ERROR);
@@ -90,35 +91,35 @@ class HealthCheck {
 			}
 			// Save results grouped by severity
 			foreach ($results as $res) {
-				HealthCheck::$test_results[$res->severity][] = $res;
+				$GLOBALS['_HealthCheck_Instance']->test_results[$res->severity][] = $res;
 			}
 		}
 	}
 	
 	function output_test_stats() {
-		$passed				= empty( HealthCheck::$test_results[HEALTH_CHECK_OK] )				? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_OK] );
-		$errors				= empty( HealthCheck::$test_results[HEALTH_CHECK_ERROR] )			? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_ERROR] );
-		$recommendations	= empty( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] );
+		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
+		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
+		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health_check'), HealthCheck::$tests_run, HealthCheck::$assertions, $passed, $errors, $recommendations );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health_check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
-			foreach (HealthCheck::$test_results[HEALTH_CHECK_ERROR] as $res) {
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] as $res) {
 				echo sprintf( __('ERROR: %s') ,$res->message) . '<br/>';
 			}
 			echo '</div>';
 		}
 		if ($recommendations) {
 			echo '<div id="health-check-recommendations">';
-			foreach (HealthCheck::$test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
 				echo sprintf( __('RECOMMENDATION: %s') ,$res->message) . '<br/>';
 			}
 			echo '</div>';
 		}
 		if ($passed) {
 			echo '<div id="health-check-ok">';
-			foreach (HealthCheck::$test_results[HEALTH_CHECK_OK] as $res) {
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] as $res) {
 				if ( !empty($res->message) )
 					echo $res->message . '<br/>';
 			}
@@ -133,7 +134,7 @@ class HealthCheck {
 	 * @return none
 	 */
 	function register_test($classname) {
-		HealthCheck::$registered_tests[] = $classname;
+		$GLOBALS['_HealthCheck_Instance']->registered_tests[] = $classname;
 	}
 
 	/**
