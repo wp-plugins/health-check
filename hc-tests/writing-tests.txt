@@ -9,3 +9,10 @@ The base class has utility functions to assert different results and store an me
 
 The php-configuration tests show the framework in its simplest usage.
 The dummy tests should not be used as a basis for developing tests as they access the results object directly and this is discouraged.
+
+== Tests to be written ==
+
+Check for lack of favicon.ico - http://core.trac.wordpress.org/ticket/3426
+Check that XML-RPC access is not blocked by host - Joseph Scott in IRC
+Check db collation matches configured charset - Andrew Ozz - http://westi.wordpress.com/2009/12/26/giving-your-wordpress-a-check-up/#comment-13673
+Check for data before xml prolog - Andrew - http://westi.wordpress.com/2009/12/26/giving-your-wordpress-a-check-up/#comment-13666
