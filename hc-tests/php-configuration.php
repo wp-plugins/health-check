@@ -67,7 +67,7 @@ HealthCheck::register_test('HealthCheck_OpenBaseDir');
  */
 class HealthCheck_RegisterGlobals extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP with register globals turned on. This is a source of many application\'s security problems (though not WordPress), and it is a source constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ini.core.php#ini.register-globals' );
+		$message = sprintf( __( 'Your Webserver is running PHP with register globals turned on. This is a source of many application\'s security problems (though not WordPress), and it is a source of constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ini.core.php#ini.register-globals' );
 		$this->assertFalse(	(bool) ini_get('register_globals'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
@@ -84,7 +84,7 @@ HealthCheck::register_test('HealthCheck_RegisterGlobals');
  */
 class HealthCheck_MagicQuotes extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP with magic quotes turned on. This is a source of constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc' );
+		$message = sprintf( __( 'Your Webserver is running PHP with magic quotes turned on. This slows down web applications, and is a source of constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc' );
 		$this->assertFalse(	(bool) ini_get('magic_quotes_gpc'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
