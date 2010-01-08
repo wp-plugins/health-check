@@ -329,4 +329,25 @@ class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
+
+
+/**
+ * Check for mod_security
+ * 
+ * @link http://wordpress.org/search/mod_security?forums=1
+ * @http://wordpress.org/support/topic/256526
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ModSecurity extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+			return;
+		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
+		$this->assertFalse(	apache_mod_loaded('mod_security'),
+							$message,
+							HEALTH_CHECK_OK );
+	}
+}
+HealthCheck::register_test('HealthCheck_ModSecurity');
 ?>
