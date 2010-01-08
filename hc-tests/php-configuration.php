@@ -179,13 +179,53 @@ class HealthCheck_ModRewrite extends HealthCheckTest {
 		// Skip if IIS
 		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
 			return;
-		$message = sprintf(__( 'WordPress failed to detect mod_rewrite on your Webserver, thus disallowing the use of fancy urls. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		$message = __( 'WordPress failed to detect mod_rewrite on your Webserver, thus disallowing the use of fancy urls. Please contact your host to have them fix this.', 'health-check' );
 		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 	}
 }
 HealthCheck::register_test('HealthCheck_ModRewrite');
+
+
+/**
+ * Check that user aborts can be ignored
+ * 
+ * @link http://php.net/manual/en/function.ignore-user-abort.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_UserAbort extends HealthCheckTest {
+	function run_test() {
+		$old = ignore_user_abort();
+		@ignore_user_abort(!$old);
+		$message = sprintf(__( 'Your Webserver disallows to override <a href="%s">user abort</a> settings. This can cause multitudes of quirks in the WordPress cron API, it can prevent future posting and pinging from working, and it can make core upgrades fail miserably. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/function.ignore-user-abort.php');
+		$this->assertTrue(	$old != ignore_user_abort(),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+		@ignore_user_abort($old);
+	}
+}
+HealthCheck::register_test('HealthCheck_UserAbort');
+
+
+/**
+ * Check that the max execution time can be overridden
+ * 
+ * @link http://php.net/manual/en/function.set-time-limit.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_MaxExecutionTime extends HealthCheckTest {
+	function run_test() {
+		$old = ini_get('max_execution_time');
+		$new = $old + 60;
+		@set_time_limit($new);
+		$message = sprintf(__( 'Your Webserver disallows to override the <a href="%s">maximum script execution time</a>. This can cause multitudes of quirks in the WordPress cron API, it can prevent future posting and pinging from working, and it can make core upgrades fail miserably. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/function.set-time-limit.php');
+		$this->assertTrue(	$new <= ini_get('max_execution_time'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_MaxExecutionTime');
 
 
 /**
