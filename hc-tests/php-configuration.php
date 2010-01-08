@@ -39,8 +39,8 @@ HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
 class HealthCheck_PHP_Version extends HealthCheckTest {
 	function run_test() {
 		$this->assertTrue(	version_compare('5.0.0', PHP_VERSION, '<'),
-							sprintf( __( 'Your Webserver is running PHP version %s, which is no longer receiving security updates and will no longer be supported by a future version of WordPress.', 'health-check' ), PHP_VERSION ),
-							HEALTH_CHECK_RECOMMENDATION );
+							sprintf( __( 'Your Webserver is running PHP version %1$s. WordPress will no longer support it in future version because it is <a href="%2$s">no longer receiving security updates</a>. Please contact your host and have them fix this as soon as possible.', 'health-check' ), PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' ),
+							HEALTH_CHECK_ERROR );
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_Version');
