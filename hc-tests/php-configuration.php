@@ -5,6 +5,43 @@
  * @package HealthCheck
  * @subpackage Tests
  */
+
+/**
+ * Check that we are running at least PHP 5
+ * 
+ * @todo Provide a link to a codex article
+ * @link http://core.trac.wordpress.org/ticket/9751
+ * @link http://www.php.net/archive/2007.php#2007-07-13-1
+ * @author peterwestwood
+ */
+class HealthCheck_PHP_Version extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP version %1$s. WordPress will no longer support it in future version because it is <a href="%2$s">no longer receiving security updates</a>. Please contact your host and have them fix this as soon as possible.', 'health-check' ), PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' );
+		$this->assertTrue(	version_compare('5.0.0', PHP_VERSION, '<'),
+							$message,
+							HEALTH_CHECK_ERROR );
+	}
+}
+HealthCheck::register_test('HealthCheck_PHP_Version');
+
+
+/**
+ * Check that we don't have safe_mode
+ * 
+ * @link http://php.net/manual/en/features.safe-mode.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_SafeMode extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with safe_mode turned on. In addition to being an <a href="%1$s">architecturally incorrect way to secure a web server</a>, it introduces scores of quirks in PHP. It has been deprecated in PHP 5.3 and dropped in PHP 6.0. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/features.safe-mode.php' );
+		$this->assertFalse(	(bool) ini_get('safe_mode'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_SafeMode');
+
+
 /**
  * Check that default_charset is not set to a bad value in php.ini
  * 
@@ -20,30 +57,16 @@
  */
 class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 	function run_test() {
+		$message = sprintf( __( 'Default character set configured in php.ini %s contains illegal characters. Please contact your host to have them fix this.', 'health-check' ), $configured);
 		$configured = ini_get('default_charset');
 		$filtered = preg_replace('|[^a-z0-9_.\-:]|i', '', $configured);
-		$this->assertEquals(	$configured, $filtered,
-							sprintf( __( 'Default character set configured in php.ini %s contains illegal characters. Please contact your host to have them fix this.', 'health-check' ), $configured),
+		$this->assertEquals($configured, $filtered,
+							$message,
 							HEALTH_CHECK_ERROR );
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
 
-/**
- * Check that we are running at least PHP 5
- * 
- * @todo Provide a link to a codex article
- * @link http://core.trac.wordpress.org/ticket/9751
- * @author peterwestwood
- */
-class HealthCheck_PHP_Version extends HealthCheckTest {
-	function run_test() {
-		$this->assertTrue(	version_compare('5.0.0', PHP_VERSION, '<'),
-							sprintf( __( 'Your Webserver is running PHP version %1$s. WordPress will no longer support it in future version because it is <a href="%2$s">no longer receiving security updates</a>. Please contact your host and have them fix this as soon as possible.', 'health-check' ), PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' ),
-							HEALTH_CHECK_ERROR );
-	}
-}
-HealthCheck::register_test('HealthCheck_PHP_Version');
 
 /**
  * Check libxml2 versions for known issue with XML-RPC
