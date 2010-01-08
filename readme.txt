@@ -1,6 +1,6 @@
 === Health Check ===
 Tags: health check
-Contributors: westi, Denis-de-Bernardy
+Contributors: westi, Denis-de-Bernardy, aaroncampbell, dougal, filosofo, sudar
 Requires at least: 2.8
 Tested up to: 2.9.1
 Stable tag: TODO
