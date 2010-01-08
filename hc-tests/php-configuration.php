@@ -12,7 +12,7 @@
  * @todo Provide a link to a codex article
  * @link http://core.trac.wordpress.org/ticket/9751
  * @link http://www.php.net/archive/2007.php#2007-07-13-1
- * @author peterwestwood
+ * @author Peter Westwood
  */
 class HealthCheck_PHP_Version extends HealthCheckTest {
 	function run_test() {
@@ -288,7 +288,7 @@ HealthCheck::register_test('HealthCheck_MB_String');
  * @link http://www.w3.org/International/O-HTTP-charset
  * @link http://www.iana.org/assignments/character-sets
  * @link http://blog.ftwr.co.uk/archives/2009/09/29/missing-dashboard-css-and-the-perils-of-smart-quotes/
- * @author peterwestwood
+ * @author Peter Westwood
  */
 class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 	function run_test() {
@@ -312,8 +312,7 @@ HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
  * 
  * @link http://josephscott.org/code/wordpress/plugin-libxml2-fix/
  * @link http://core.trac.wordpress.org/ticket/7771
- * 
- * @author peterwestwood
+ * @author Peter Westwood
  */
 class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
 	function run_test() {
@@ -335,7 +334,7 @@ HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
  * Check for mod_security
  * 
  * @link http://wordpress.org/search/mod_security?forums=1
- * @http://wordpress.org/support/topic/256526
+ * @link http://wordpress.org/support/topic/256526
  * @author Denis de Bernardy
  */
 class HealthCheck_ModSecurity extends HealthCheckTest {
