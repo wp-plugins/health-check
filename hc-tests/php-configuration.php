@@ -23,7 +23,7 @@ class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 		$configured = ini_get('default_charset');
 		$filtered = preg_replace('|[^a-z0-9_.\-:]|i', '', $configured);
 		$this->assertEquals(	$configured, $filtered,
-							sprintf( __( 'Default character set configured in php.ini %s contains illegal characters.', 'health-check' ), $configured),
+							sprintf( __( 'Default character set configured in php.ini %s contains illegal characters. Please contact your host to have them fix this.', 'health-check' ), $configured),
 							HEALTH_CHECK_ERROR );
 	}
 }
@@ -59,9 +59,10 @@ HealthCheck::register_test('HealthCheck_PHP_Version');
  */
 class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. You can read more <a href="http://josephscott.org/code/wordpress/plugin-libxml2-fix/">here</a>', 'health-check'),
+		$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. You can read more <a href="%3$s">here</a>. Please contact your host to have them fix this.', 'health-check'),
 							PHP_VERSION,
-							LIBXML_DOTTED_VERSION);
+							LIBXML_DOTTED_VERSION,
+							'http://josephscott.org/code/wordpress/plugin-libxml2-fix/');
 		$this->assertNotEquals( '2.6.27', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
 		$this->assertNotEquals( '2.7.0', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
 		$this->assertNotEquals( '2.7.1', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
