@@ -50,13 +50,30 @@ HealthCheck::register_test('HealthCheck_SafeMode');
  */
 class HealthCheck_OpenBaseDir extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP with an open_basedir restriction. In addition to being an <a href="%1$s">architecturally incorrect way to secure a web server</a>, this introduces scores of quirks in PHP. It has been deprecated in PHP 5.3 and dropped in PHP 6.0. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/features.safe-mode.php' );
+		$message = __( 'Your Webserver is running PHP with an open_basedir restriction. This is a constant source of grief in WordPress and other PHP applications. Among other problems, it can prevent uploaded files from being organized in folders, and it can prevent some plugins from working. Please contact your host to have them fix this.', 'health-check' );
 		$this->assertFalse(	(bool) ini_get('open_basedir'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 	}
 }
 HealthCheck::register_test('HealthCheck_OpenBaseDir');
+
+
+/**
+ * Check that globals aren't registered
+ * 
+ * @link http://php.net/manual/en/features.safe-mode.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_RegisterGlobals extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with register globals turned on. This is a source of many application\'s security problems (though not WordPress), and it is a source constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ini.core.php#ini.register-globals' );
+		$this->assertFalse(	(bool) ini_get('register_globals'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_RegisterGlobals');
 
 
 /**
