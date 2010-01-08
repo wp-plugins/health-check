@@ -6,6 +6,8 @@
 	Author: The Health Check Team
 	Version: 0.1-alpha
 	Author URI: http://wordpress.org/extend/plugins/health-check/
+	Text Domain: health-check
+	Domain Path: /lang
  */
 
 class HealthCheck {
@@ -21,10 +23,11 @@ class HealthCheck {
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
 		$GLOBALS['_HealthCheck_Instance'] = new HealthCheck();
+		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
 	}
 
 	function action_admin_menu() {
-		add_management_page(__('Health Check','health_check'), __('Health Check','health_check'), 'manage_options', 'health_check', array('HealthCheck','display_page'));
+		add_management_page(__('Health Check','health-check'), __('Health Check','health-check'), 'manage_options', 'health-check', array('HealthCheck','display_page'));
 	}
 
 	function display_page() {
@@ -43,13 +46,13 @@ class HealthCheck {
 ?>
 	<div class="wrap">
 		<?php screen_icon(); ?>
-		<h2><?php _e('Health Check','health_check'); ?></h2>
-		<p><?php _e('Welcome to your WordPress health check centre.','health_check');?></p>
+		<h2><?php _e('Health Check','health-check'); ?></h2>
+		<p><?php _e('Welcome to your WordPress health check centre.','health-check');?></p>
 <?php
 		if (0 == $step) {
 ?>
-		<p><?php _e('Click on go to run a number of tests on your site and report back on any issues.','health_check');?></p>
-		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health_check&step=1'), 'health-check');?>"><?php _e('Go','health_check') ?></a></p>
+		<p><?php _e('Click on go to run a number of tests on your site and report back on any issues.','health-check');?></p>
+		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health-check&step=1'), 'health-check');?>"><?php _e('Go','health-check') ?></a></p>
 <?php
 		} elseif ( 1 == $step ) {
 			//Lazy load our includes and all the tests we will run
@@ -101,7 +104,7 @@ class HealthCheck {
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health_check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';

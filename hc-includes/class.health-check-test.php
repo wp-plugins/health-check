@@ -21,7 +21,7 @@ class HealthCheckTest {
 	
 	function run_test() {
 		// If this has not been overridden then the test will always fail
-		$this->assertTrue(false, __('ERROR: Test class does not implement run_test()','health_check'), HEALTH_CHECK_ERROR);
+		$this->assertTrue(false, __('ERROR: Test class does not implement run_test()','health-check'), HEALTH_CHECK_ERROR);
 	}
 	
 	/**
