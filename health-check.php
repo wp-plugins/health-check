@@ -21,6 +21,8 @@ class HealthCheck {
 	var $assertions = 0;
 	
 	function action_plugins_loaded() {
+		if ( function_exists('is_super_admin') && !is_super_admin() )
+			return; // this stuff is only the super admin's business
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
 		$GLOBALS['_HealthCheck_Instance'] = new HealthCheck();
 		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
