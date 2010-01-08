@@ -178,7 +178,8 @@ HealthCheck::register_test('HealthCheck_ApacheFunctions');
 class HealthCheck_ModRewrite extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
-		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+		global $is_apache;
+		if ( !$is_apache )
 			return;
 		$message = __( 'WordPress failed to detect mod_rewrite on your Webserver, thus disallowing the use of fancy urls. Please contact your host to have them fix this.', 'health-check' );
 		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
@@ -341,7 +342,8 @@ HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
 class HealthCheck_ModSecurity extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
-		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+		global $is_apache;
+		if ( !$is_apache )
 			return;
 		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
 		$this->assertFalse(	apache_mod_loaded('mod_security'),
