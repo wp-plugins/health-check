@@ -62,7 +62,7 @@ HealthCheck::register_test('HealthCheck_OpenBaseDir');
 /**
  * Check that globals aren't registered
  * 
- * @link http://php.net/manual/en/features.safe-mode.php
+ * @link http://php.net/manual/en/ini.core.php#ini.register-globals
  * @author Denis de Bernardy
  */
 class HealthCheck_RegisterGlobals extends HealthCheckTest {
@@ -74,6 +74,23 @@ class HealthCheck_RegisterGlobals extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_RegisterGlobals');
+
+
+/**
+ * Check that magic quotes are turned off
+ * 
+ * @link http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc
+ * @author Denis de Bernardy
+ */
+class HealthCheck_MagicQuotes extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with magic quotes turned on. This is a source of constant grief in PHP applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc' );
+		$this->assertFalse(	(bool) ini_get('magic_quotes_gpc'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_MagicQuotes');
 
 
 /**
