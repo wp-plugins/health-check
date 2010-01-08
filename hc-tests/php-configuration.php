@@ -135,7 +135,7 @@ class HealthCheck_MemoryLimitOverride extends HealthCheckTest {
 	function run_test() {
 		$original_limit = ini_get('memory_limit');
 		$test = 247;
-		if ( $test == intval($original) )
+		if ( $test == intval($original_limit) )
 			$test++;
 		@ini_set('memory_limit', "{$test}M");
 		$message = __( 'Your Webserver disallows PHP to increase the memory limit at run time. This can occasionally prevent WordPress from working. In particular during core upgrades, where WordPress tries to increase it to 256M in order to unzip core files. Depending on how your server is configured, running into this memory limit would reveal some kind of "Failed to allocate memory" error, an incomplete screen, or a completely blank screen. Please contact your host to have them fix this.', 'health-check' );
@@ -157,7 +157,8 @@ HealthCheck::register_test('HealthCheck_MemoryLimitOverride');
 class HealthCheck_ApacheFunctions extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
-		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+		global $is_apache;
+		if ( !$is_apache )
 			return;
 		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. At worst, this can prevent WordPress from detecting Apache\'s mod_rewrite module, thus disallowing the use of fancy urls. At best, this makes detecting the mod_rewrite module slower. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
 		$this->assertTrue(	function_exists('apache_get_modules'),
@@ -292,9 +293,9 @@ HealthCheck::register_test('HealthCheck_MB_String');
  */
 class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Default character set configured in php.ini %s contains illegal characters. Please contact your host to have them fix this.', 'health-check' ), $configured);
 		$configured = ini_get('default_charset');
 		$filtered = preg_replace('|[^a-z0-9_.\-:]|i', '', $configured);
+		$message = sprintf( __( 'Default character set configured in php.ini %s contains illegal characters. Please contact your host to have them fix this.', 'health-check' ), $configured);
 		$this->assertEquals($configured, $filtered,
 							$message,
 							HEALTH_CHECK_ERROR );
