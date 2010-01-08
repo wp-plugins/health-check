@@ -169,6 +169,26 @@ HealthCheck::register_test('HealthCheck_ApacheFunctions');
 
 
 /**
+ * Check for mod_rewrite
+ * 
+ * @link http://php.net/manual/en/ref.apache.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ModRewrite extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+			return;
+		$message = sprintf(__( 'WordPress failed to detect mod_rewrite on your Webserver, thus disallowing the use of fancy urls. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_ModRewrite');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
