@@ -251,6 +251,33 @@ HealthCheck::register_test('HealthCheck_UploadSize');
 
 
 /**
+ * Check for multibyte string sanitization functionality
+ * 
+ * @link http://php.net/manual/en/intro.mbstring.php
+ * @link http://php.net/manual/en/intro.iconv.php
+ * @link http://php.net/manual/en/reference.pcre.pattern.modifiers.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_MB_String extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf(__( 'Your Webserver does not support <a href="%1$s">multibyte string functions</a>. This can result in improperly sanitized strings when WordPress handles trackbacks, pingbacks, and RSS feeds that use multibyte characters. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/intro.mbstring.php');
+		$this->assertTrue(	function_exists('mb_detect_encoding'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+		$message = sprintf(__( 'Your Webserver does not support <a href="%s">iconv</a> functions. This can result in improperly sanitized strings when WordPress handles trackbacks, pingbacks, and RSS feeds that use multibyte characters. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/intro.iconv.php');
+		$this->assertTrue(	function_exists('iconv'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+		$message = sprintf(__( 'Your Webserver does not support <a href="%s">UTF-8 regular expressions</a> (the /u modifier is not working). This can result in improperly sanitized strings when WordPress handles trackbacks, pingbacks, and RSS feeds that use multibyte characters. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/reference.pcre.pattern.modifiers.php');
+		$this->assertTrue(	@preg_match("/^\pL/u", 'a'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_MB_String');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
