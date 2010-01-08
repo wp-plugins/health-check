@@ -139,7 +139,8 @@ class HealthCheck_MemoryLimitOverride extends HealthCheckTest {
 			$test++;
 		@ini_set('memory_limit', "{$test}M");
 		$message = __( 'Your Webserver disallows PHP to increase the memory limit at run time. This can occasionally prevent WordPress from working. In particular during core upgrades, where WordPress tries to increase it to 256M in order to unzip core files. Depending on how your server is configured, running into this memory limit would reveal some kind of "Failed to allocate memory" error, an incomplete screen, or a completely blank screen. Please contact your host to have them fix this.', 'health-check' );
-		$this->assertTrue(	( intval(ini_get('memory_limit')) == $test ),
+		$this->assertEquals($test, 
+							intval( ini_get('memory_limit') ),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 		@ini_set('memory_limit', $original_limit); // restore original limit
@@ -201,9 +202,10 @@ class HealthCheck_UserAbort extends HealthCheckTest {
 		$old = ignore_user_abort();
 		@ignore_user_abort(!$old);
 		$message = sprintf(__( 'Your Webserver disallows to override <a href="%s">user abort</a> settings. This can cause multitudes of quirks in the WordPress cron API, it can prevent future posting and pinging from working, and it can make core upgrades fail miserably. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/function.ignore-user-abort.php');
-		$this->assertTrue(	$old != ignore_user_abort(),
-							$message,
-							HEALTH_CHECK_RECOMMENDATION );
+		$this->assertNotEquals(	$old,
+								ignore_user_abort(),
+								$message,
+								HEALTH_CHECK_RECOMMENDATION );
 		@ignore_user_abort($old);
 	}
 }
