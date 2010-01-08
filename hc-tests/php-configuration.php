@@ -33,13 +33,30 @@ HealthCheck::register_test('HealthCheck_PHP_Version');
  */
 class HealthCheck_SafeMode extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP with safe_mode turned on. In addition to being an <a href="%1$s">architecturally incorrect way to secure a web server</a>, it introduces scores of quirks in PHP. It has been deprecated in PHP 5.3 and dropped in PHP 6.0. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/features.safe-mode.php' );
+		$message = sprintf( __( 'Your Webserver is running PHP with safe_mode turned on. In addition to being an <a href="%1$s">architecturally incorrect way to secure a web server</a>, this introduces scores of quirks in PHP. It has been deprecated in PHP 5.3 and dropped in PHP 6.0. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/features.safe-mode.php' );
 		$this->assertFalse(	(bool) ini_get('safe_mode'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 	}
 }
 HealthCheck::register_test('HealthCheck_SafeMode');
+
+
+/**
+ * Check that we don't have an open_basedir restriction
+ * 
+ * @link http://php.net/manual/en/features.safe-mode.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_OpenBaseDir extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with an open_basedir restriction. In addition to being an <a href="%1$s">architecturally incorrect way to secure a web server</a>, this introduces scores of quirks in PHP. It has been deprecated in PHP 5.3 and dropped in PHP 6.0. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/features.safe-mode.php' );
+		$this->assertFalse(	(bool) ini_get('open_basedir'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_OpenBaseDir');
 
 
 /**
