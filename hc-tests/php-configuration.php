@@ -113,7 +113,6 @@ HealthCheck::register_test('HealthCheck_LongArrays');
 /**
  * Check that long arrays are turned off
  * 
- * @link http://php.net/manual/en/ini.core.php#ini.register-long-arrays
  * @author Denis de Bernardy
  */
 class HealthCheck_MemoryLimit extends HealthCheckTest {
