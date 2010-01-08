@@ -229,6 +229,28 @@ HealthCheck::register_test('HealthCheck_MaxExecutionTime');
 
 
 /**
+ * Check the max upload size and the post max size
+ * 
+ * @author Denis de Bernardy
+ */
+class HealthCheck_UploadSize extends HealthCheckTest {
+	function run_test() {
+		$upload_max_filesize = intval(ini_get('upload_max_filesize'));
+		$post_max_size = intval(ini_get('post_max_size'));
+		$message = sprintf(__( 'Your Webserver disallows uploads for files larger than %1$sMB. If you are using your site to host photography, podcasts or videos, consider increasing the limit (upload_max_filesize) to 8MB or higher. Please contact your host to have them fix this.', 'health-check' ), $upload_max_filesize);
+		$this->assertTrue(	$upload_max_filesize >= 8,
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+		$message = sprintf(__( 'Your Webserver allows uploaded files to be as large as %1$sMB, but only allows HTTP POST requests to be as large as %2$sMB. The latter figure (post_max_size) should be greater than the former (upload_max_filesize). Please contact your host to have them fix this.', 'health-check' ), $upload_max_filesize, $post_max_size);
+		$this->assertTrue(	$upload_max_filesize <= $post_max_size,
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_UploadSize');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
