@@ -111,6 +111,23 @@ HealthCheck::register_test('HealthCheck_LongArrays');
 
 
 /**
+ * Check that long arrays are turned off
+ * 
+ * @link http://php.net/manual/en/ini.core.php#ini.register-long-arrays
+ * @author Denis de Bernardy
+ */
+class HealthCheck_MemoryLimit extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with a low memory limit (%s). This can occasionally prevent WordPress from working. In particular during core upgrades, if you use a theme with lots of functionality, or if you enable multitudes of plugins. Depending on how your server is configured, running into this memory limit would reveal some kind of "Failed to allocate memory" error, or a completely blank screen. Please contact your host to have them increase the memory limit to 32M or more. (48M or even 64M might be needed if you enable many plugins.)', 'health-check' ), ini_get('memory_limit') );
+		$this->assertTrue(	!ini_get('memory_limit') || ( intval(ini_get('memory_limit')) >= 32 ),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_MemoryLimit');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
