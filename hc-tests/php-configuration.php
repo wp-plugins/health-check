@@ -149,6 +149,26 @@ HealthCheck::register_test('HealthCheck_MemoryLimitOverride');
 
 
 /**
+ * Check for apache functions
+ * 
+ * @link http://php.net/manual/en/ref.apache.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ApacheFunctions extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		if ( !preg_match("/^Apache/i", $_SERVER['SERVER_SOFTWARE']) )
+			return;
+		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. At worst, this can prevent WordPress from detecting Apache\'s mod_rewrite module, thus disallowing the use of fancy urls. At best, this makes detecting the mod_rewrite module slower. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		$this->assertTrue(	function_exists('apache_get_modules'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_ApacheFunctions');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
