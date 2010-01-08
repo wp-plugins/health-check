@@ -109,14 +109,14 @@ class HealthCheck {
 		if ($errors) {
 			echo '<div id="health-check-errors">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] as $res) {
-				echo wpautop(sprintf( __('ERROR: %s') ,$res->message));
+				echo wpautop(sprintf( __('ERROR: %s'), $res->message));
 			}
 			echo '</div>';
 		}
 		if ($recommendations) {
 			echo '<div id="health-check-recommendations">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
-				echo wpautop(sprintf( __('RECOMMENDATION: %s') ,$res->message));
+				echo wpautop(sprintf( __('RECOMMENDATION: %s'), $res->message));
 			}
 			echo '</div>';
 		}
@@ -124,7 +124,7 @@ class HealthCheck {
 			echo '<div id="health-check-ok">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] as $res) {
 				if ( !empty($res->message) )
-					echo wpautop($res->message);
+					echo wpautop(sprintf( __('NOTICE: %s'), $res->message));
 			}
 			echo '</div>';
 		}
