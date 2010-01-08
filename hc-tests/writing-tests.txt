@@ -5,6 +5,22 @@ The test writing infrastructure is designed to make it really simple for anyone 
 All tests are implemented in classes which extend the HealthCheckTest base class and must implement the run_test function.
 The base class has utility functions to assert different results and store an message and severity on failure of the assertion.
 
+== Severity Definitions ==
+
+There are currently three types of severity:
+
+= HEALTH_CHECK_OK =
+This means the assertion passed ok.
+Very rarely there might be a message associated with this but in most cases there wouldn't be.
+
+= HEALTH_CHECK_RECOMMENDATION = 
+This means that the assertion failed and the configuration being asserted is not critical to the sites functionality.
+This should be used where we are making a configuration recommendation about something which could cause an issue but doesn't stop the site working completely.
+These should be things that can be resolved over a period of time.
+
+= HEALTH_CHECK_ERROR =
+This means that the assertion failed and there is immedidate action required to fix an issue that will be breaking the site.
+
 == Examples ==
 
 The php-configuration tests show the framework in its simplest usage.
