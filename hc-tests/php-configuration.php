@@ -94,6 +94,23 @@ HealthCheck::register_test('HealthCheck_MagicQuotes');
 
 
 /**
+ * Check that long arrays are turned off
+ * 
+ * @link http://php.net/manual/en/ini.core.php#ini.register-long-arrays
+ * @author Denis de Bernardy
+ */
+class HealthCheck_LongArrays extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf( __( 'Your Webserver is running PHP with register long arrays turned on. This slows down web applications. It has been <a href="%1$s">deprecated in PHP 5.3 and dropped in PHP 6.0</a>. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ini.core.php#ini.register-long-arrays' );
+		$this->assertFalse(	(bool) ini_get('register_long_arrays'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_LongArrays');
+
+
+/**
  * Check that default_charset is not set to a bad value in php.ini
  * 
  * Validates against the following rules:
