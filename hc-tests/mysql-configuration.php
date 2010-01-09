@@ -104,10 +104,10 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 		
-		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but your database tables are using the %2$s character set. (Usually, this will be `latin1\' with `latin1_swedish_ci\' collation, i.e. MySQL\'s weird factory setting.) Using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. Following the <a href="%4$s">instructions to fix this</a> can be a bit challenging for non-technically oriented users, however, so keep in mind that this is a mere recommendation.', 'health-check' ), $table_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', 'http://codex.wordpress.org/Converting_Database_Character_Sets');
+		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but your database tables are using the %2$s character set. Using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. Following the <a href="%4$s">instructions to fix this</a> can be a bit challenging for non-technically oriented users, however, so keep in mind that this is a mere notice.', 'health-check' ), $table_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', 'http://codex.wordpress.org/Converting_Database_Character_Sets');
 		$this->assertEquals(strtolower($table_charset), strtolower(DB_CHARSET),
 							$message,
-							HEALTH_CHECK_RECOMMENDATION );
+							HEALTH_CHECK_INFO );
 	}
 }
 HealthCheck::register_test('HealthCheck_MySQL_Charset');
