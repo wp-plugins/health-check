@@ -18,11 +18,11 @@ class HealthCheck_MySQL_Version extends HealthCheckTest {
 		$version = $wpdb->db_version();
 		
 		$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but the latest version is %2$s. WordPress highly recommends MySQL 5 or higher, because <a href="%3$s">MySQL 4 is full of gotchas</a>. Please contact your host and have them upgrade MySQL accordingly.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION, 'http://sql-info.de/mysql/gotchas.html' );
-		$this->assertTrue(	version_compare('5.0.0', $version, '<'),
-							$message,
-							HEALTH_CHECK_RECOMMENDATION );
+		$passed = $this->assertTrue(	version_compare('5.0.0', $version, '<'),
+										$message,
+										HEALTH_CHECK_RECOMMENDATION );
 
-		if ( version_compare('5.0.0', $version, '<') ) { // no point in raising this twice
+		if ( $passed ) { // no point in raising this twice
 			$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but the latest version is %2$s. Please contact your host and have them upgrade MySQL.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION );
 			$this->assertTrue(	version_compare(HEALTH_CHECK_MYSQL_VERSION, $version, '<='),
 								$message,
