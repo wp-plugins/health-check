@@ -53,8 +53,8 @@ class HealthCheck {
 <?php
 		if (0 == $step) {
 ?>
-		<p><?php _e('Click on go to run a number of tests on your site and report back on any issues.','health-check');?></p>
-		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health-check&step=1'), 'health-check');?>"><?php _e('Go','health-check') ?></a></p>
+		<p><?php _e('Click the button below to run a number of tests on your site and report back on any issues.','health-check');?></p>
+		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health-check&step=1'), 'health-check');?>"><?php _e('Run Health Checks','health-check') ?></a></p>
 <?php
 		} elseif ( 1 == $step ) {
 			//Lazy load our includes and all the tests we will run
