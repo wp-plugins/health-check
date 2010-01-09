@@ -7,7 +7,7 @@
  */
 
 /**
- * Check that we are running the latest and greatest version of Apache
+ * Check that we are running the latest and greatest branch of Apache
  * 
  * @author Denis de Bernardy
  */
@@ -23,8 +23,9 @@ class HealthCheck_Apache_Version extends HealthCheckTest {
 		if ( !$version ) // server software is being silenced...
 			return;
 		
-		$message = sprintf( __( 'Your Webserver is running Apache version %1$s, but the latest version is %2$s. Please contact your host and have them upgrade Apache.', 'health-check' ), $version, HEALTH_CHECK_APACHE_VERSION );
-		$this->assertTrue(	version_compare(HEALTH_CHECK_APACHE_VERSION, $version, '<='),
+		$message = sprintf( __( 'Your Webserver is running Apache version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade Apache.', 'health-check' ), $version, HEALTH_CHECK_APACHE_VERSION );
+		// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
+		$this->assertTrue(	version_compare($version, HEALTH_CHECK_APACHE_VERSION, '>='),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
 	}

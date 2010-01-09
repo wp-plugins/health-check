@@ -7,7 +7,7 @@
  */
 
 /**
- * Check that we are running at least PHP 5, and ideally the latest and greatest PHP version
+ * Check that we are running at least PHP 5, and ideally the latest and greatest PHP branch
  * 
  * @todo Provide a link to a codex article
  * @link http://core.trac.wordpress.org/ticket/9751
@@ -16,14 +16,15 @@
  */
 class HealthCheck_PHP_Version extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but the latest version is %2$s. WordPress will no longer support PHP 4 in a future version because it is <a href="%3$s">no longer receiving security updates</a>. Please contact your host and have them upgrade PHP as soon as possible.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' );
+		$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but its latest stable branch is %2$s. WordPress will no longer support PHP 4 in a future version because it is <a href="%3$s">no longer receiving security updates</a>. Please contact your host and have them upgrade PHP as soon as possible.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' );
 		$passed = $this->assertTrue(	version_compare('5.0.0', PHP_VERSION, '<'),
 										$message,
 										HEALTH_CHECK_RECOMMENDATION );
 
 		if ( $passed ) { // no point in raising this twice
-			$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but the latest version is %2$s. Please contact your host and have them upgrade PHP.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION );
-			$this->assertTrue(	version_compare(HEALTH_CHECK_PHP_VERSION, PHP_VERSION, '<='),
+			$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade PHP.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION );
+			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
+			$this->assertTrue(	version_compare(PHP_VERSION, HEALTH_CHECK_PHP_VERSION, '>='),
 								$message,
 								HEALTH_CHECK_RECOMMENDATION );
 		}

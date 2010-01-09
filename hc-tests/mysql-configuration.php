@@ -7,7 +7,7 @@
  */
 
 /**
- * Check that we are running at least MySQL 5, and ideally the latest and greatest
+ * Check that we are running at least MySQL 5, and ideally the latest and greatest branch
  * 
  * @link http://sql-info.de/mysql/gotchas.html
  * @author Denis de Bernardy
@@ -17,14 +17,15 @@ class HealthCheck_MySQL_Version extends HealthCheckTest {
 		global $wpdb;
 		$version = $wpdb->db_version();
 		
-		$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but the latest version is %2$s. WordPress highly recommends MySQL 5 or higher, because <a href="%3$s">MySQL 4 is full of gotchas</a>. Please contact your host and have them upgrade MySQL accordingly.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION, 'http://sql-info.de/mysql/gotchas.html' );
+		$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but its latest stable branch is %2$s. WordPress highly recommends MySQL 5 or higher, because <a href="%3$s">MySQL 4 is full of gotchas</a>. Please contact your host and have them upgrade MySQL accordingly.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION, 'http://sql-info.de/mysql/gotchas.html' );
 		$passed = $this->assertTrue(	version_compare('5.0.0', $version, '<'),
 										$message,
 										HEALTH_CHECK_RECOMMENDATION );
 
 		if ( $passed ) { // no point in raising this twice
-			$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but the latest version is %2$s. Please contact your host and have them upgrade MySQL.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION );
-			$this->assertTrue(	version_compare(HEALTH_CHECK_MYSQL_VERSION, $version, '<='),
+			$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade MySQL.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION );
+			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
+			$this->assertTrue(	version_compare($version, HEALTH_CHECK_MYSQL_VERSION, '>='),
 								$message,
 								HEALTH_CHECK_RECOMMENDATION );
 			
