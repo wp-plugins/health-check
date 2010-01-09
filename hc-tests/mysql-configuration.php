@@ -99,7 +99,7 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 		preg_match("/CHARSET\s*=\s*([a-z0-9_]+)/i", $table_charset, $table_charset);
 		$table_charset = end($table_charset);
 		
-		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but its database is using the %2$s character set. (Usually, this will be `latin1\' with `latin1_swedish_ci\' collation, i.e. MySQL\'s weird factory setting.) WordPress handles this quite fine, but not all plugins do when they create or alter database tables. And using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. Change this is simple. Simply run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER DATABASE `%4$s` DEFAULT CHARACTER SET %2$s</code>.', 'health-check' ), $db_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', DB_NAME);
+		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but its database is using the %2$s character set. WordPress handles this quite fine, but not all plugins do when they create or alter database tables. Using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. To change this, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER DATABASE `%4$s` DEFAULT CHARACTER SET %2$s</code>.', 'health-check' ), $db_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', DB_NAME);
 		$this->assertEquals(strtolower($db_charset), strtolower(DB_CHARSET),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
