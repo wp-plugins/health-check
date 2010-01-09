@@ -124,7 +124,7 @@ class HealthCheck {
 			echo '</div>';
 		}
 		if ($notices) {
-			echo '<div id="health-check-ok">';
+			echo '<div id="health-check-notices">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] as $res) {
 				if ( !empty($res->message) )
 					echo wpautop(sprintf( __('NOTICE: %s'), $res->message));
