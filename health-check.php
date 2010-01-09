@@ -157,7 +157,7 @@ class HealthCheck {
 		foreach ( array(
 			'php-configuration.php',
 			'mysql-configuration.php',
-			'server-software.php',
+			'server-configuration.php',
 			) as $file ) {
 			require_once($hc_tests_dir . $file );
 		}
