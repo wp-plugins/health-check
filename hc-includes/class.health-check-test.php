@@ -35,7 +35,7 @@ class HealthCheckTest {
 	 */
 	function assertEquals($expected, $actual, $message, $severity = HEALTH_CHECK_ERROR) {
 		$result = new HealthCheckTestResult();
-		if ( $expected !== $actual ) {
+		if ( ( $expected !== $actual ) xor HEALTH_CHECK_DEBUG ) {
 			$result->markAsFailed($message, $severity);
 		} else {
 			$result->markAsPassed();
@@ -58,7 +58,7 @@ class HealthCheckTest {
 	 */
 	function assertNotEquals($unexpected, $actual, $message, $severity = HEALTH_CHECK_ERROR) {
 		$result = new HealthCheckTestResult();
-		if ( $unexpected === $actual ) {
+		if ( ( $unexpected === $actual ) xor HEALTH_CHECK_DEBUG ) {
 			$result->markAsFailed($message, $severity);
 		} else {
 			$result->markAsPassed();
@@ -80,7 +80,7 @@ class HealthCheckTest {
 	 */
 	function assertTrue($actual, $message, $severity = HEALTH_CHECK_ERROR) {
 		$result = new HealthCheckTestResult();
-		if ( !$actual ) {
+		if ( ( !$actual ) xor HEALTH_CHECK_DEBUG ) {
 			$result->markAsFailed($message, $severity);
 		} else {
 			$result->markAsPassed();
@@ -102,7 +102,7 @@ class HealthCheckTest {
 	 */
 	function assertFalse($actual, $message, $severity = HEALTH_CHECK_ERROR) {
 		$result = new HealthCheckTestResult();
-		if ( $actual ) {
+		if ( ( $actual ) xor HEALTH_CHECK_DEBUG ) {
 			$result->markAsFailed($message, $severity);
 		} else {
 			$result->markAsPassed();
