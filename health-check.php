@@ -153,7 +153,12 @@ class HealthCheck {
 		$hc_tests_dir = plugin_dir_path(__FILE__) . 'hc-tests/';
 		//Uncomment for testing purposes only
 		//require_once($hc_tests_dir . 'dummy-test.php');
-		require_once($hc_tests_dir . 'php-configuration.php');
+		foreach ( array(
+			'php-configuration.php',
+			'mysql-configuration.php',
+			) as $file ) {
+			require_once($hc_tests_dir . $file );
+		}
 	}
 
 	/**
