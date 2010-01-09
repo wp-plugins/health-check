@@ -65,28 +65,7 @@ HealthCheck::register_test('HealthCheck_IP_Address');
 
 
 /**
- * Check for apache functions
- * 
- * @link http://php.net/manual/en/ref.apache.php
- * @author Denis de Bernardy
- */
-class HealthCheck_ApacheFunctions extends HealthCheckTest {
-	function run_test() {
-		// Skip if IIS
-		global $is_apache;
-		if ( !$is_apache )
-			return;
-		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. At worst, this can prevent WordPress from detecting Apache\'s mod_rewrite module, thus disallowing the use of fancy urls. At best, this makes detecting the mod_rewrite module slower. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
-		$this->assertTrue(	function_exists('apache_get_modules'),
-							$message,
-							HEALTH_CHECK_RECOMMENDATION );
-	}
-}
-HealthCheck::register_test('HealthCheck_ApacheFunctions');
-
-
-/**
- * Check for mod_rewrite
+ * Check for apache functions and mod_rewrite
  * 
  * @link http://php.net/manual/en/ref.apache.php
  * @author Denis de Bernardy
@@ -97,7 +76,16 @@ class HealthCheck_ModRewrite extends HealthCheckTest {
 		global $is_apache;
 		if ( !$is_apache )
 			return;
-		$message = __( 'WordPress failed to detect mod_rewrite on your Webserver, thus disallowing the use of fancy urls. Please contact your host to have them fix this.', 'health-check' );
+		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. These make it easier for WordPress to detect the availability of Apache modules such as mod_rewrite. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		$passed = $this->assertTrue(function_exists('apache_get_modules'),
+									$message,
+									HEALTH_CHECK_RECOMMENDATION );
+
+		if ( !$passed ) {
+			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver, from lack of proper means to detect it. WordPress assumes it is present, but <a href="%s">Apache functions</a> would be needed to ensure proper detection. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		} else {
+			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver. <a href="%s">Fancy permalinks</a> will not work without it, unless you prepend your permalink structure with /index.php.', 'health-check' ), 'options-permalink.php');
+		}
 		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
