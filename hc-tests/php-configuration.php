@@ -26,7 +26,7 @@ class HealthCheck_PHP_Version extends HealthCheckTest {
 			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
 			$this->assertTrue(	version_compare(PHP_VERSION, HEALTH_CHECK_PHP_VERSION, '>='),
 								$message,
-								HEALTH_CHECK_RECOMMENDATION );
+								HEALTH_CHECK_INFO );
 		}
 	}
 }

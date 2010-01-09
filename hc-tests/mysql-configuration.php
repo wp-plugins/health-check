@@ -27,7 +27,7 @@ class HealthCheck_MySQL_Version extends HealthCheckTest {
 			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
 			$this->assertTrue(	version_compare($version, HEALTH_CHECK_MYSQL_VERSION, '>='),
 								$message,
-								HEALTH_CHECK_RECOMMENDATION );
+								HEALTH_CHECK_INFO );
 			
 		}
 	}
