@@ -105,8 +105,9 @@ class HealthCheck {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
+		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, and %5$d failed with recommendations.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $notices );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
@@ -122,11 +123,19 @@ class HealthCheck {
 			}
 			echo '</div>';
 		}
+		if ($notices) {
+			echo '<div id="health-check-ok">';
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] as $res) {
+				if ( !empty($res->message) )
+					echo wpautop(sprintf( __('NOTICE: %s'), $res->message));
+			}
+			echo '</div>';
+		}
 		if ($passed) {
 			echo '<div id="health-check-ok">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] as $res) {
 				if ( !empty($res->message) )
-					echo wpautop(sprintf( __('NOTICE: %s'), $res->message));
+					echo wpautop($res->message);
 			}
 			echo '</div>';
 		}

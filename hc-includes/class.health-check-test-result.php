@@ -9,8 +9,10 @@
 // Severity levels for the reports
 define( 'HEALTH_CHECK_UNKNOWN',			-1 );
 define( 'HEALTH_CHECK_OK',				 1 );
-define( 'HEALTH_CHECK_RECOMMENDATION',	 2 );
-define( 'HEALTH_CHECK_ERROR',			 3 );
+define( 'HEALTH_CHECK_PENDING',			 2 );
+define( 'HEALTH_CHECK_INFO',			 3 );
+define( 'HEALTH_CHECK_RECOMMENDATION',	 4 );
+define( 'HEALTH_CHECK_ERROR',			 5 );
 
 /**
  * Class to encapsulate the test results

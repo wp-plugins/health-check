@@ -68,7 +68,7 @@ class HealthCheck_Oversized_Options extends HealthCheckTest {
 										|| !method_exists('Memcache', 'addServer')
 										|| ( $options_size <= 820 ), // 800kB
 										$message,
-										HEALTH_CHECK_OK );
+										HEALTH_CHECK_INFO );
 
 		if ( !$passed ) {
 			// highlight options that are larger than ~50kB (e.g. rewrite_rules and yarpp's cache)
@@ -79,7 +79,7 @@ class HealthCheck_Oversized_Options extends HealthCheckTest {
 			$passed = $this->assertEquals(	$large_options,
 											'',
 											$message,
-											HEALTH_CHECK_OK );
+											HEALTH_CHECK_INFO );
 		}
 	}
 }
