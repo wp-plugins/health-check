@@ -178,6 +178,24 @@ HealthCheck::register_test('HealthCheck_UserAbort');
 
 
 /**
+ * Check that we've the GD library
+ * 
+ * @link http://php.net/manual/en/book.image.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_GD extends HealthCheckTest {
+	function run_test() {
+		
+		$message = sprintf(__( 'Your Webserver does not have the <a href="%s">GD library</a>. WordPress uses it for image manipulations, such as thumbnail generation and image rotations. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/book.image.php');
+		$this->assertTrue(	function_exists('imagerotate'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_GD');
+
+
+/**
  * Check that the max execution time can be overridden
  * 
  * @link http://php.net/manual/en/function.set-time-limit.php
