@@ -158,6 +158,7 @@ class HealthCheck {
 			'php-configuration.php',
 			'mysql-configuration.php',
 			'server-configuration.php',
+			'wp-configuration.php',
 			) as $file ) {
 			require_once($hc_tests_dir . $file );
 		}
