@@ -142,12 +142,10 @@ HealthCheck::register_test('HealthCheck_MemoryLimit');
 class HealthCheck_MemoryLimitOverride extends HealthCheckTest {
 	function run_test() {
 		$original_limit = ini_get('memory_limit');
-		$test = 247;
-		if ( $test == intval($original_limit) )
-			$test++;
-		@ini_set('memory_limit', "{$test}M");
+		// Let the test pass if we're already at 256M
+		@ini_set('memory_limit', '256M');
 		$message = __( 'Your Webserver disallows PHP to increase the memory limit at run time. This can occasionally prevent WordPress from working. In particular during core upgrades, where WordPress tries to increase it to 256M in order to unzip core files. Depending on how your server is configured, running into this memory limit would reveal some kind of "Failed to allocate memory" error, an incomplete screen, or a completely blank screen. Please contact your host to have them fix this.', 'health-check' );
-		$this->assertEquals($test, 
+		$this->assertEquals(256, 
 							intval( ini_get('memory_limit') ),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
@@ -332,4 +330,60 @@ class HealthCheck_JSON extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_JSON');
+
+
+/**
+ * Check if we've the Suhosin patch
+ * 
+ * @link http://www.hardened-php.net/suhosin/
+ * @author Denis de Bernardy
+ */
+class HealthCheck_Suhosin extends HealthCheckTest {
+	function run_test() {
+		$check = true;
+		// Maybe suhosin is just sticking to logging, so let's stay permissive
+		switch ( extension_loaded('suhosin') && !ini_get('suhosin.simulation') ) {
+		case true:
+			// these should all be sufficiently large
+			foreach ( array(
+				'cookie',
+				'get',
+				'post',
+				'request',
+				) as $var ) {
+				foreach ( array(
+					'max_array_depth' => 512,
+					'max_array_index_length' => 2048,
+					'max_name_length' => 512,
+					'max_totalname_length' => 8192,
+					'max_value_length' => 4000000,
+					'max_vars' => 2048,
+					'max_varname_length' => 8192,
+					) as $setting => $limit ) {
+					$setting = intval(ini_get("suhosin.$var.$setting"));
+					if ( $setting && $setting < $limit ) {
+						$check = false;
+						break 3;
+					}
+				}
+			}
+			if ( ini_get('suhosin.upload.max_uploads') < 100 ) {
+				$check = false;
+				break;
+			}
+			
+			// WP tries to set the memory limit to 256M in several places
+			if ( intval(ini_get('memory_limit')) < 256 && intval(ini_get('suhosin.memory_limit')) < 256 ) {
+				$check = false;
+				break;
+			}
+		}
+		
+		$message = sprintf(__( 'Your Webserver is using the <a href="%1$s">Suhosin patch</a> with over-zealous security settings. Suhosin is an extreme source of grief for large PHP applications, and ought to be your primary suspect if you experience very weird WordPress issues. The symptoms include messages with cryptic resource limits, incompletely loaded pages, and partially saved data. This plugin checks for <a href="%2$s">filtering restrictions</a> and memory restrictions (256M min). Please contact your host to have them increased.', 'health-check' ), 'http://www.hardened-php.net/suhosin/', 'http://www.hardened-php.net/suhosin/configuration.html#filtering_options');
+		$this->assertTrue(	$check,
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_Suhosin');
 ?>
