@@ -154,8 +154,6 @@ class HealthCheck {
 		//Uncomment for testing purposes only
 		//require_once($hc_tests_dir . 'dummy-test.php');
 
-		require_once dirname(__FILE__) . '/versions.php'; // version defines are in here for convenience
-		
 		foreach ( array(
 			'php-configuration.php',
 			'mysql-configuration.php',
@@ -174,6 +172,7 @@ class HealthCheck {
 		$hc_includes = plugin_dir_path(__FILE__) . 'hc-includes/';
 		require_once($hc_includes . 'class.health-check-test.php');
 		require_once($hc_includes . 'class.health-check-test-result.php');
+		require_once($hc_includes . '/versions.php');
 	}
 
 	/**
