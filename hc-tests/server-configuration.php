@@ -125,4 +125,54 @@ class HealthCheck_ModSecurity extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_ModSecurity');
+
+
+/**
+ * Check the memcache status
+ * 
+ * @author Denis de Bernardy
+ */
+class HealthCheck_Memcache_Status extends HealthCheckTest {
+	function run_test() {
+		// skip if we're not using Memcache
+		global $_wp_using_ext_object_cache;
+		if ( !$_wp_using_ext_object_cache || !method_exists('Memcache', 'addServer') )
+			return;
+		
+		// some object cache modules are happy with $memcached_servers not being set
+		global $memcached_servers;
+		if ( isset($memcached_servers) )
+			$buckets = $memcached_servers;
+		else
+			$buckets = array('127.0.0.1');
+		reset($buckets);
+		if ( is_int(key($buckets)) )
+			$buckets = array('default' => $buckets);
+		
+		$failed = array();
+		foreach ( $buckets as $bucket => $servers) {
+			$test = new Memcache();
+			foreach ( $servers as $server  ) {
+				@ list ( $node, $port ) = explode(':', $server);
+				if ( !$port )
+					$port = ini_get('memcache.default_port');
+				$port = intval($port);
+				if ( !$port )
+					$port = 11211;
+				$success = @ $test->connect($node, $port);
+				if ( !$success )
+					$failed[] = "$node:$port";
+				@ $test->close();
+			}
+		}
+		
+		$failed = implode(__('</code>, <code>', 'health-check'), $failed);
+		
+		$message = sprintf(__( 'Your Webserver seems to be using a Memcache-based persistent cache module, and the following memcache nodes seem to be down: <code>%s</code>.', 'health-check' ), $failed);
+		$this->assertFalse(	(bool) $failed,
+							$message,
+							HEALTH_CHECK_ERROR );
+	}
+}
+HealthCheck::register_test('HealthCheck_Memcache_Status');
 ?>
