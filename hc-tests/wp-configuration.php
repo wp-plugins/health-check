@@ -31,7 +31,6 @@ HealthCheck::register_test('HealthCheck_Permalinks');
  * Check that we're not using verbose rewrite rules
  * 
  * @todo find trac tickets that highlight verbose rule problems
- * @link http://www.w3.org/Provider/Style/URI
  * @author Denis de Bernardy
  */
 class HealthCheck_Verbose_Rules extends HealthCheckTest {
@@ -41,7 +40,7 @@ class HealthCheck_Verbose_Rules extends HealthCheckTest {
 		if ( !$wp_rewrite->permalink_structure )
 			return;
 		
-		$message = sprintf(__( 'You\'ve configured WordPress to use a fancy URL structure (<code>%1$s</code>) that requires the use of verbose rewrite rules. On sites with multitudes of attachments or static pages, WordPress ends up pulling a large serialized array from the database on every page load. (At least one member of the Health Check team has seen this bring down a bi-Xeon server with moderate traffic.) To avoid the problem, use a permalink structure whose left-most rewrite tag is numerical, i.e. <code>%%post_id%%</code>, <code>%%year%%</code>, <code>%%monthnum%%</code> or <code>%%day%%</code>. Note that your post URLs should <a href="%2$s">ideally include date information</a>; for this reason, WordPress recommends either of the default date-based structures.', 'health-check' ), $wp_rewrite->permalink_structure, 'http://www.w3.org/Provider/Style/URI' );
+		$message = sprintf(__( 'You\'ve configured WordPress to use a fancy URL structure (<code>%1$s</code>) that requires the use of verbose rewrite rules. On sites with multitudes of attachments or static pages, WordPress ends up pulling a large serialized array from the database on every page load, which is resource intensive. To avoid the problem, use a permalink structure whose left-most rewrite tag is numerical, i.e. <code>%%post_id%%</code>, <code>%%year%%</code>, <code>%%monthnum%%</code> or <code>%%day%%</code>. WordPress recommends either of the default date-based structures.', 'health-check' ), $wp_rewrite->permalink_structure );
 		$this->assertFalse(	$wp_rewrite->use_verbose_page_rules,
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
