@@ -16,7 +16,7 @@
  */
 class HealthCheck_PHP_Version extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but the latest version is %2$s. WordPress will no longer support PHP 4 in future version because it is <a href="%3$s">no longer receiving security updates</a>. Please contact your host and have them upgrade PHP as soon as possible.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' );
+		$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but the latest version is %2$s. WordPress will no longer support PHP 4 in a future version because it is <a href="%3$s">no longer receiving security updates</a>. Please contact your host and have them upgrade PHP as soon as possible.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION, 'http://www.php.net/archive/2007.php#2007-07-13-1' );
 		$this->assertTrue(	version_compare('5.0.0', PHP_VERSION, '<'),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
