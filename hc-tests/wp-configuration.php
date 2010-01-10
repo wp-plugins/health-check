@@ -89,6 +89,7 @@ HealthCheck::register_test('HealthCheck_Oversized_Options');
 /**
  * Check that the HTTP API works, and do checks that use the HTTP API if it does
  * 
+ * @link http://wordpress.org/extend/plugins/core-control/
  * @link http://codex.wordpress.org/Creating_a_Favicon
  * @link http://core.trac.wordpress.org/ticket/3426
  * @author Denis de Bernardy
@@ -133,4 +134,28 @@ class HealthCheck_HTTP extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_HTTP');
+
+
+/**
+ * Check that the cron is working at all
+ * 
+ * @link http://wordpress.org/extend/plugins/core-control/
+ * @author Denis de Bernardy
+ */
+class HealthCheck_Cron extends HealthCheckTest {
+	function run_test() {
+		if ( get_transient('health_check_activated') ) {
+			$message = __( 'The WordPress Cron test has yet to run. Please try again in a few minutes.', 'health-check' );
+			$importance = HEALTH_CHECK_PENDING;
+		} else {
+			$message = sprintf(__( 'The WordPress cron doesn\'t seem to be working. If this check consistently fails, consider installing the <a href="%s">Core Control plugin</a>, and trying a different HTTP Transport.', 'health-check' ), 'http://wordpress.org/extend/plugins/core-control/' );
+			$importance = HEALTH_CHECK_ERROR;
+		}
+		$this->assertTrue(	get_transient('health_check_cron_check')
+							&& ( get_transient('health_check_cron_check') - time() <= 86400 ),
+							$message,
+							$importance );
+	}
+}
+HealthCheck::register_test('HealthCheck_Cron');
 ?>

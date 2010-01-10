@@ -26,6 +26,9 @@ class HealthCheck {
 		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
 		foreach ( array('admin_post_health-check', 'admin_post_nopriv_health-check') as $hook )
 			add_action($hook, array('HealthCheck', 'http_test'));
+		if ( !wp_next_scheduled('health_check_cron_check') )
+			wp_schedule_event(time(), 'twicedaily', 'health_check_cron_check');
+		add_action('health_check_cron_check', array('HealthCheck', 'cron_test'));
 	}
 
 	function action_admin_menu() {
@@ -107,9 +110,10 @@ class HealthCheck {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
+		$pending	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] );
 		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $notices );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, %6$d failed as pending and %7$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $pending, $notices );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
@@ -122,6 +126,14 @@ class HealthCheck {
 			echo '<div id="health-check-recommendations">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
 				echo wpautop(sprintf( __('RECOMMENDATION: %s'), $res->message));
+			}
+			echo '</div>';
+		}
+		if ($pending) {
+			echo '<div id="health-check-pending">';
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] as $res) {
+				if ( !empty($res->message) )
+					echo wpautop(sprintf( __('PENDING: %s'), $res->message));
 			}
 			echo '</div>';
 		}
@@ -227,8 +239,51 @@ class HealthCheck {
 		header('Content-Type: text/plain; charset=' . get_option('blog_charset'));
 		die('OK');
 	}
+	
+	/**
+	 * keep track of when the cron test was last run
+	 *
+	 * static method
+	 *
+	 * @return void
+	 **/
+
+	function cron_test() {
+		set_transient('health_check_cron_check', time());
+		delete_transient('health_check_activated'); // no longer useful
+	} # cron_test()
+
+	/**
+	 * reset the cron checks, and setup an initial cron job
+	 *
+	 * static method
+	 *
+	 * @return void
+	 **/
+
+	function activate() {
+		set_transient('health_check_activated', 1, 3600); // give it an hour to run the cron
+		delete_transient('health_check_cron_check');
+		wp_clear_scheduled_hook('health_check_cron_check');
+		wp_schedule_single_event(time() - 86400, 'health_check_cron_check');
+	}
+
+	/**
+	 * reset the cron checks, and clean-up the cron job
+	 *
+	 * static method
+	 *
+	 * @return void
+	 **/
+
+	function deactivate() {
+		delete_transient('health_check_activated');
+		delete_transient('health_check_cron_check');
+		wp_clear_scheduled_hook('health_check_cron_check');
+	}
 }
 /* Initialize ourselves */
 add_action('plugins_loaded', array('HealthCheck','action_plugins_loaded'));
-
+register_activation_hook(__FILE__, array('HealthCheck', 'activate'));
+register_deactivation_hook(__FILE__, array('HealthCheck', 'deactivate'));
 ?>
