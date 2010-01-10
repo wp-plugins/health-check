@@ -80,8 +80,13 @@ HealthCheck::register_test('HealthCheck_MySQL_Escape');
  * Nonetheless, we can check the database's charset. It should be using the same as
  * the one defined in the wp-config.php file, in the event a plugin creates a table.
  *
+ * MySQL enforces xxx_general_ci as a collation when the charset changes. If a site
+ * is using a non-english language, it may make sense to suggest using a different
+ * collation among the available ones on the server.
+ *
  * @link http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html
  * @link http://dev.mysql.com/doc/refman/5.0/en/charset-configuration.html
+ * @link http://dev.mysql.com/doc/refman/5.0/en/charset-unicode-sets.html
  * @link http://bugs.mysql.com/bug.php?id=11362
  * @author Denis de Bernardy
  */
@@ -123,7 +128,16 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 										strtolower(DB_CHARSET),
 										$message,
 										HEALTH_CHECK_INFO );
-		
+
+		if ( $passed && WPLANG && !preg_match("/^en\b/i", WPLANG) ) {
+			// in this check, we'll assume that if it's set to any value, it is the correct one.
+			$message = sprintf( __( 'Your WordPress installation is localized as %1$s, but your database is using the <a href="%2$s">%3$s_general_ci collation</a>. This can result in oddly ordered results when retrieving data from your database. Please check with your host to know if a collation that is more appropriate for your language might be available on your server. To change a table\'s collation, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER TABLE `tablename` CONVERT TO CHARACTER SET %4$s COLLATE %3$s_newcollation_ci</code>.', 'health-check' ), WPLANG, 'http://dev.mysql.com/doc/refman/5.0/en/charset-unicode-sets.html', $blog2mysql[$blog_charset], DB_CHARSET);
+			$this->assertNotEquals(	DB_COLLATE,
+									'',
+									$message,
+									HEALTH_CHECK_INFO );
+		}
+
 		$message = sprintf( __( 'Your WordPress database is using the %1$s character set by default, whereas you\'ve configured WordPress to use the %2$s character set. WordPress handles this quite fine, but not all plugins do when they create or alter database tables, and using inconsistent character sets and collations can lead to <a href="%3$s">quirky behaviors</a>. To change this, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER DATABASE `%4$s` DEFAULT CHARACTER SET %2$s</code>.', 'health-check' ), $db_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', DB_NAME);
 		$this->assertEquals(strtolower($db_charset),
 							strtolower(DB_CHARSET),
