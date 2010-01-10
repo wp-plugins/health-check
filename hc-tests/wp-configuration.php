@@ -63,7 +63,7 @@ class HealthCheck_Oversized_Options extends HealthCheckTest {
 		// .8 because we're assuming the default (roughly 20%) compression savings for large
 		$options_size = round($options_size * .8 / 1024);
 		
-		$message = sprintf(__( 'Your Webserver\'s memcache-based persistent cache can store items <a href="%1$s">no larger than 1MB</a>, but your WordPress %2$s table contains roughly %3$skB of data assuming 20%% compression savings. You might want to investigate which options are taking such a large amount of space.', 'health-check' ), 'http://code.google.com/p/memcached/wiki/FAQ', $wpdb->options, $options_size, $large_options );
+		$message = sprintf(__( 'Your Webserver\'s memcache-based persistent cache can store items <a href="%1$s">no larger than 1MB</a>, but your WordPress %2$s table contains roughly %3$skB of data assuming 20%% compression savings. You might want to investigate which options are taking such a large amount of space.', 'health-check' ), 'http://code.google.com/p/memcached/wiki/FAQ', $wpdb->options, $options_size );
 		$passed = $this->assertTrue(	!$_wp_using_ext_object_cache
 										|| !method_exists('Memcache', 'addServer')
 										|| ( $options_size <= 820 ), // 800kB
