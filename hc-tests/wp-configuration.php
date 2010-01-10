@@ -89,6 +89,7 @@ HealthCheck::register_test('HealthCheck_Oversized_Options');
 /**
  * Check that the HTTP API works, and do checks that use the HTTP API if it does
  * 
+ * @link http://codex.wordpress.org/Creating_a_Favicon
  * @link http://core.trac.wordpress.org/ticket/3426
  * @author Denis de Bernardy
  */
