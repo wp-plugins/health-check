@@ -164,4 +164,58 @@ class HealthCheck_Memcache_Status extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_Memcache_Status');
+
+
+/**
+ * Check file permissions
+ * 
+ * @author Denis de Bernardy
+ */
+class HealthCheck_Permissions extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		global $is_apache;
+		if ( !$is_apache )
+			return;
+		
+		foreach ( array(
+			ABSPATH . 'wp-admin',
+			ABSPATH . 'wp-includes',
+			WP_CONTENT_DIR,
+			) as $dir ) {
+			$this->count_executable_files($dir, true);
+		}
+		
+		// ABSPATH could contain a cgi folder, etc., so non-recursive
+		$count = $this->count_executable_files(ABSPATH, false);
+		
+		$message = sprintf(__( 'Your WordPress installation contains %d executable files. This is a security issue. Please contact your host and have them fix this at once.', 'health-check' ), $count);
+		$this->assertEquals($count,
+							0,
+							$message,
+							HEALTH_CHECK_ERROR );
+	}
+	
+	function count_executable_files($dir, $recursive = false) {
+		static $count = 0;
+		$dir = rtrim($dir, '/');
+		if ( !( $handle = opendir($dir) ) )
+			return $count;
+		
+		while ( ( $file = readdir($handle) ) !== false ) {
+			if ( in_array($file, array('.', '..')) )
+				continue;
+			$file = "$dir/$file";
+			if ( is_file($file) ) {
+				if ( is_executable($file) )
+					$count++;
+			} elseif ( $recursive ) {
+				$this->count_executable_files($file, $recursive);
+			}
+		}
+		
+		return $count;
+	}
+}
+HealthCheck::register_test('HealthCheck_Permissions');
 ?>
