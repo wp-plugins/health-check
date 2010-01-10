@@ -2,6 +2,8 @@
 /**
  * Tests to check for MySQL config issues.
  *
+ * @todo check collation vs locale
+ * 
  * @package HealthCheck
  * @subpackage Tests
  */
@@ -99,15 +101,34 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 		preg_match("/CHARSET\s*=\s*([a-z0-9_]+)/i", $table_charset, $table_charset);
 		$table_charset = end($table_charset);
 		
-		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but its database is using the %2$s character set. WordPress handles this quite fine, but not all plugins do when they create or alter database tables. Using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. To change this, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER DATABASE `%4$s` DEFAULT CHARACTER SET %2$s</code>.', 'health-check' ), $db_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', DB_NAME);
-		$this->assertEquals(strtolower($db_charset), strtolower(DB_CHARSET),
+		$blog_charset = strtoupper(get_option('blog_charset', 'UTF-8'));
+		
+		$passed = true;
+		
+		// We need a conversion table to properly test the first one
+		$blog2mysql = array(
+			'UTF-8' => 'utf8',
+			);
+		
+		if ( isset($blog2mysql[$blog_charset]) ) {
+			$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, whereas your WordPress database is configured to use the %2$s character set. Using inconsistent character sets and collations can lead to <a href="%3$s">quirky behaviors</a>. You can change this setting in your wp-config.php file. A line should read: <code>define("DB_CHARSET", "%4$s");</code>' ), $blog_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', $blog2mysql[$blog_charset] );
+			$passed &= $this->assertEquals($blog2mysql[$blog_charset],
+								strtolower(DB_CHARSET),
+								$message,
+								HEALTH_CHECK_INFO );
+		}
+		
+		$message = sprintf( __( 'Your WordPress database tables are using the %1$s character set, whereas your WordPress database is configured to use the %2$s character set. Using inconsistent character sets and collations can lead to <a href="%3$s">quirky behaviors</a>. The <a href="%4$s">instructions to fix this</a> can be a bit challenging for non-technically oriented users, however, so merely keep this in mind as notice notice.', 'health-check' ), $table_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', 'http://codex.wordpress.org/Converting_Database_Character_Sets');
+		$passed &= $this->assertEquals(	strtolower($table_charset),
+										strtolower(DB_CHARSET),
+										$message,
+										HEALTH_CHECK_INFO );
+		
+		$message = sprintf( __( 'Your WordPress database is using the %1$s character set by default, whereas you\'ve configured WordPress to use the %2$s character set. WordPress handles this quite fine, but not all plugins do when they create or alter database tables, and using inconsistent character sets and collations can lead to <a href="%3$s">quirky behaviors</a>. To change this, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER DATABASE `%4$s` DEFAULT CHARACTER SET %2$s</code>.', 'health-check' ), $db_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', DB_NAME);
+		$this->assertEquals(strtolower($db_charset),
+							strtolower(DB_CHARSET),
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );
-		
-		$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, but your database tables are using the %2$s character set. Using the wrong character set or collation can lead to <a href="%3$s">weird side effects</a>. Following the <a href="%4$s">instructions to fix this</a> can be a bit challenging for non-technically oriented users, however, so keep in mind that this is a mere notice.', 'health-check' ), $table_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', 'http://codex.wordpress.org/Converting_Database_Character_Sets');
-		$this->assertEquals(strtolower($table_charset), strtolower(DB_CHARSET),
-							$message,
-							HEALTH_CHECK_INFO );
 	}
 }
 HealthCheck::register_test('HealthCheck_MySQL_Charset');
