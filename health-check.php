@@ -21,14 +21,16 @@ class HealthCheck {
 	var $assertions = 0;
 	
 	function action_plugins_loaded() {
-		if ( function_exists('is_super_admin') && !is_super_admin() )
-			return; // this stuff is only the super admin's business
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
 		$GLOBALS['_HealthCheck_Instance'] = new HealthCheck();
 		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
+		foreach ( array('admin_post_health-check', 'admin_post_nopriv_health-check') as $hook )
+			add_action($hook, array('HealthCheck', 'http_test'));
 	}
 
 	function action_admin_menu() {
+		if ( function_exists('is_super_admin') && !is_super_admin() )
+			return; // the actual tests are only the super admin's business
 		add_management_page(__('Health Check','health-check'), __('Health Check','health-check'), 'manage_options', 'health-check', array('HealthCheck','display_page'));
 	}
 
@@ -211,6 +213,19 @@ class HealthCheck {
 	function _verify_nonce($action) {
 		$_wpnonce = isset($_REQUEST['_wpnonce']) ? $_REQUEST['_wpnonce'] : '';
 		return wp_verify_nonce($_wpnonce, $action);
+	}
+	
+	/**
+	 * die with OK on admin-post.php?action=health-check
+	 *
+	 * static method
+	 *
+	 * @return void
+	 **/
+
+	function http_test() {
+		header('Content-Type: text/plain; charset=' . get_option('blog_charset'));
+		die('OK');
 	}
 }
 /* Initialise outselves */
