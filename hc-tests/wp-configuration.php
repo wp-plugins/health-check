@@ -158,4 +158,24 @@ class HealthCheck_Cron extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_Cron');
+
+
+/**
+ * Check for inactive widgets (this can slow down the widgets screen tremendously)
+ * 
+ * @link http://core.trac.wordpress.org/ticket/10021
+ * @author Denis de Bernardy
+ */
+class HealthCheck_InactiveWidgets extends HealthCheckTest {
+	function run_test() {
+		$sidebars_widgets = wp_get_sidebars_widgets();
+		$message = sprintf(__( 'Quite a few widgets are inactive on your site. This can <a href="%1$s">slow down</a> the widgets screen. Consider deleting a few under <a href="%2$s">Appearance / Widgets</a>.', 'health-check' ), 'http://core.trac.wordpress.org/ticket/10021', 'widgets.php' );
+		$this->assertTrue(	empty($sidebars_widgets['wp_inactive_widgets'])
+							// allow for a few saved ad/text widgets
+							|| ( count($sidebars_widgets['wp_inactive_widgets']) <= 3 ),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_InactiveWidgets');
 ?>
