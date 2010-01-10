@@ -228,7 +228,7 @@ class HealthCheck {
 		die('OK');
 	}
 }
-/* Initialise outselves */
+/* Initialize ourselves */
 add_action('plugins_loaded', array('HealthCheck','action_plugins_loaded'));
 
 ?>
