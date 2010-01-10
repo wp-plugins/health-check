@@ -37,7 +37,7 @@ class HealthCheck_Verbose_Rules extends HealthCheckTest {
 	function run_test() {
 		// Skip if permalinks aren't enabled
 		global $wp_rewrite;
-		if ( !$wp_rewrite->permalink_structure )
+		if ( !$wp_rewrite->permalink_structure && !HEALTH_CHECK_DEBUG )
 			return;
 		
 		$message = sprintf(__( 'You\'ve configured WordPress to use a fancy URL structure (<code>%1$s</code>) that requires the use of verbose rewrite rules. On sites with multitudes of attachments or static pages, WordPress ends up pulling a large serialized array from the database on every page load, which is resource intensive. To avoid the problem, use a permalink structure whose left-most rewrite tag is numerical, i.e. <code>%%post_id%%</code>, <code>%%year%%</code>, <code>%%monthnum%%</code> or <code>%%day%%</code>. WordPress recommends either of the default date-based structures.', 'health-check' ), $wp_rewrite->permalink_structure );
@@ -70,7 +70,7 @@ class HealthCheck_Oversized_Options extends HealthCheckTest {
 										$message,
 										HEALTH_CHECK_INFO );
 
-		if ( !$passed ) {
+		if ( !$passed || HEALTH_CHECK_DEBUG ) {
 			// highlight options that are larger than ~50kB (e.g. rewrite_rules and yarpp's cache)
 			$large_options = $wpdb->get_col("SELECT option_name FROM $wpdb->options WHERE LENGTH(option_value) >= 51200 ORDER BY LENGTH(option_value) DESC");
 			$large_options = implode(__('</code>, <code>', 'health-check'), $large_options);
@@ -105,7 +105,7 @@ class HealthCheck_HTTP extends HealthCheckTest {
 										$message,
 										HEALTH_CHECK_ERROR );
 		
-		if ( $passed ) { // no point in trying these if HTTP doesn't work at all
+		if ( $passed || HEALTH_CHECK_DEBUG ) { // no point in trying these if HTTP doesn't work at all
 			// the site might be in a subfolder
 			$url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . '/favicon.ico';
 			$res = wp_remote_head($url);

@@ -15,12 +15,12 @@ class HealthCheck_Apache_Version extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
 		global $is_apache;
-		if ( !$is_apache )
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
 		
 		preg_match("{Apache/(\d+(?:\.\d+)*)}", $_SERVER['SERVER_SOFTWARE'], $version);
 		$version = end($version);
-		if ( !$version ) // server software is being silenced...
+		if ( !$version && !HEALTH_CHECK_DEBUG ) // server software is being silenced...
 			return;
 		
 		$message = sprintf( __( 'Your Webserver is running Apache version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade Apache.', 'health-check' ), $version, HEALTH_CHECK_APACHE_VERSION );
@@ -74,7 +74,7 @@ class HealthCheck_ModRewrite extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
 		global $is_apache;
-		if ( !$is_apache )
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
 		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. These make it easier for WordPress to detect the availability of Apache modules such as mod_rewrite. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
 		$passed = $this->assertTrue(function_exists('apache_get_modules'),
@@ -105,7 +105,7 @@ class HealthCheck_ModSecurity extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
 		global $is_apache;
-		if ( !$is_apache )
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
 		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
 		$this->assertFalse(	apache_mod_loaded('mod_security'),
@@ -125,7 +125,7 @@ class HealthCheck_Memcache_Status extends HealthCheckTest {
 	function run_test() {
 		// skip if we're not using Memcache
 		global $_wp_using_ext_object_cache;
-		if ( !$_wp_using_ext_object_cache || !method_exists('Memcache', 'addServer') )
+		if ( ( !$_wp_using_ext_object_cache || !method_exists('Memcache', 'addServer') ) && !HEALTH_CHECK_DEBUG )
 			return;
 		
 		// some object cache modules are happy with $memcached_servers not being set
@@ -175,7 +175,7 @@ class HealthCheck_Permissions extends HealthCheckTest {
 	function run_test() {
 		// Skip if IIS
 		global $is_apache;
-		if ( !$is_apache )
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
 		
 		foreach ( array(
@@ -209,7 +209,7 @@ class HealthCheck_Permissions extends HealthCheckTest {
 			if ( is_file($file) ) {
 				if ( is_executable($file) )
 					$count++;
-			} elseif ( $recursive ) {
+			} elseif ( is_dir($file) && $recursive ) {
 				$this->count_executable_files($file, $recursive);
 			}
 		}

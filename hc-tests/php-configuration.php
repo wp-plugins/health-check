@@ -21,7 +21,7 @@ class HealthCheck_PHP_Version extends HealthCheckTest {
 										$message,
 										HEALTH_CHECK_RECOMMENDATION );
 
-		if ( $passed ) { // no point in raising this twice
+		if ( $passed || HEALTH_CHECK_DEBUG ) { // no point in raising this twice
 			$message = sprintf( __( 'Your Webserver is running PHP version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade PHP.', 'health-check' ), PHP_VERSION, HEALTH_CHECK_PHP_VERSION );
 			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
 			$this->assertTrue(	version_compare(PHP_VERSION, HEALTH_CHECK_PHP_VERSION, '>='),

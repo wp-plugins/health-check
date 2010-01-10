@@ -24,7 +24,7 @@ class HealthCheck_MySQL_Version extends HealthCheckTest {
 										$message,
 										HEALTH_CHECK_RECOMMENDATION );
 
-		if ( $passed ) { // no point in raising this twice
+		if ( $passed || HEALTH_CHECK_DEBUG ) { // no point in raising this twice
 			$message = sprintf( __( 'Your Webserver is running MySQL version %1$s, but its latest stable branch is %2$s. Please contact your host and have them upgrade MySQL.', 'health-check' ), $version, HEALTH_CHECK_MYSQL_VERSION );
 			// invert the check because version_compare('1.0', '1.0.0', '>=') returns false
 			$this->assertTrue(	version_compare($version, HEALTH_CHECK_MYSQL_VERSION, '>='),
@@ -93,7 +93,7 @@ HealthCheck::register_test('HealthCheck_MySQL_Escape');
 class HealthCheck_MySQL_Charset extends HealthCheckTest {
 	function run_test() {
 		// Skip test if we've no DB_CHARSET
-		if ( !defined('DB_CHARSET') || !DB_CHARSET )
+		if ( ( !defined('DB_CHARSET') || !DB_CHARSET ) && !HEALTH_CHECK_DEBUG )
 			return;
 		
 		global $wpdb;
@@ -115,7 +115,7 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 			'UTF-8' => 'utf8',
 			);
 		
-		if ( isset($blog2mysql[$blog_charset]) ) {
+		if ( isset($blog2mysql[$blog_charset]) || HEALTH_CHECK_DEBUG ) {
 			$message = sprintf( __( 'Your WordPress installation is using the %1$s character set, whereas your WordPress database is configured to use the %2$s character set. Using inconsistent character sets and collations can lead to <a href="%3$s">quirky behaviors</a>. You can change this setting in your wp-config.php file. A line should read: <code>define("DB_CHARSET", "%4$s");</code>' ), $blog_charset, DB_CHARSET, 'http://dev.mysql.com/doc/refman/5.0/en/charset-collation-effect.html', $blog2mysql[$blog_charset] );
 			$passed &= $this->assertEquals($blog2mysql[$blog_charset],
 								strtolower(DB_CHARSET),
@@ -129,7 +129,7 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 										$message,
 										HEALTH_CHECK_INFO );
 
-		if ( $passed && WPLANG && !preg_match("/^en\b/i", WPLANG) ) {
+		if ( $passed && WPLANG && !preg_match("/^en\b/i", WPLANG) || HEALTH_CHECK_DEBUG ) {
 			// in this check, we'll assume that if it's set to any value, it is the correct one.
 			$message = sprintf( __( 'Your WordPress installation is localized as %1$s, but your database is using the <a href="%2$s">%3$s_general_ci collation</a>. This can result in oddly ordered results when retrieving data from your database. Please check with your host to know if a collation that is more appropriate for your language might be available on your server. To change a table\'s collation, run (or have your host run) the following SQL in PhpMyAdmin: <code>ALTER TABLE `tablename` CONVERT TO CHARACTER SET %4$s COLLATE %3$s_newcollation_ci</code>.', 'health-check' ), WPLANG, 'http://dev.mysql.com/doc/refman/5.0/en/charset-unicode-sets.html', $blog2mysql[$blog_charset], DB_CHARSET);
 			$this->assertNotEquals(	DB_COLLATE,

@@ -14,7 +14,7 @@ define( 'HEALTH_CHECK_PENDING',			 3 );
 define( 'HEALTH_CHECK_RECOMMENDATION',	 4 );
 define( 'HEALTH_CHECK_ERROR',			 5 );
 
-// Debug mode: set to true in wp-config.php in order to invert successful/failed tests
+// Debug mode: set to true in wp-config.php in order to make all tests run and fail
 if ( !defined('HEALTH_CHECK_DEBUG') )
 	define( 'HEALTH_CHECK_DEBUG', false );
 
