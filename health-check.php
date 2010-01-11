@@ -26,9 +26,7 @@ class HealthCheck {
 		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
 		foreach ( array('admin_post_health-check', 'admin_post_nopriv_health-check') as $hook )
 			add_action($hook, array('HealthCheck', 'http_test'));
-		if ( !wp_next_scheduled('health_check_cron_check') )
-			wp_schedule_event(time(), 'twicedaily', 'health_check_cron_check');
-		add_action('health_check_cron_check', array('HealthCheck', 'cron_test'));
+		HealthCheck::init_cron_test();
 	}
 
 	function action_admin_menu() {
@@ -243,6 +241,27 @@ class HealthCheck {
 		set_transient('health_check_cron_check', time());
 		delete_transient('health_check_activated'); // no longer useful
 	} # cron_test()
+	
+	/**
+	 * initialize cron checks
+	 *
+	 * static method
+	 *
+	 * @return void
+	 **/
+
+	function init_cron_test() {
+		if ( !get_transient('health_check_cron_check_enabled') ) {
+			set_transient('health_check_cron_check_enabled', 1);
+			set_transient('health_check_activated', 1, 3600); // give it an hour to run the cron
+			delete_transient('health_check_cron_check');
+			wp_clear_scheduled_hook('health_check_cron_check');
+			wp_schedule_single_event(time() - 86400, 'health_check_cron_check');
+		} elseif ( !wp_next_scheduled('health_check_cron_check') ) {
+			wp_schedule_event(time(), 'twicedaily', 'health_check_cron_check');
+		}
+		add_action('health_check_cron_check', array('HealthCheck', 'cron_test'));
+	}
 
 	/**
 	 * reset the cron checks, and setup an initial cron job
@@ -253,10 +272,7 @@ class HealthCheck {
 	 **/
 
 	function activate() {
-		set_transient('health_check_activated', 1, 3600); // give it an hour to run the cron
-		delete_transient('health_check_cron_check');
-		wp_clear_scheduled_hook('health_check_cron_check');
-		wp_schedule_single_event(time() - 86400, 'health_check_cron_check');
+		HealthCheck::init_cron_test();
 	}
 
 	/**
@@ -268,6 +284,7 @@ class HealthCheck {
 	 **/
 
 	function deactivate() {
+		delete_transient('health_check_cron_check_enabled');
 		delete_transient('health_check_activated');
 		delete_transient('health_check_cron_check');
 		wp_clear_scheduled_hook('health_check_cron_check');
