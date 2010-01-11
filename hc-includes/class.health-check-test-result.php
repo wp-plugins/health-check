@@ -10,9 +10,8 @@
 define( 'HEALTH_CHECK_UNKNOWN',			-1 );
 define( 'HEALTH_CHECK_OK',				 1 );
 define( 'HEALTH_CHECK_INFO',			 2 );
-define( 'HEALTH_CHECK_PENDING',			 3 );
-define( 'HEALTH_CHECK_RECOMMENDATION',	 4 );
-define( 'HEALTH_CHECK_ERROR',			 5 );
+define( 'HEALTH_CHECK_RECOMMENDATION',	 3 );
+define( 'HEALTH_CHECK_ERROR',			 4 );
 
 // Debug mode: set to true in wp-config.php in order to make all tests run and fail
 if ( !defined('HEALTH_CHECK_DEBUG') )

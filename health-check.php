@@ -110,7 +110,6 @@ class HealthCheck {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
-		$pending	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] );
 		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
 		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, %6$d failed as pending and %7$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $pending, $notices );?></p>
@@ -126,14 +125,6 @@ class HealthCheck {
 			echo '<div id="health-check-recommendations">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
 				echo wpautop(sprintf( __('RECOMMENDATION: %s'), $res->message));
-			}
-			echo '</div>';
-		}
-		if ($pending) {
-			echo '<div id="health-check-pending">';
-			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_PENDING] as $res) {
-				if ( !empty($res->message) )
-					echo wpautop(sprintf( __('PENDING: %s'), $res->message));
 			}
 			echo '</div>';
 		}

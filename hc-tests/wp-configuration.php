@@ -146,7 +146,7 @@ class HealthCheck_Cron extends HealthCheckTest {
 	function run_test() {
 		if ( get_transient('health_check_activated') ) {
 			$message = __( 'The WordPress Cron test has yet to run. Please try again in a few minutes.', 'health-check' );
-			$importance = HEALTH_CHECK_PENDING;
+			$importance = HEALTH_CHECK_INFO;
 		} else {
 			$message = sprintf(__( 'The WordPress cron doesn\'t seem to be working. If this check consistently fails, consider installing the <a href="%s">Core Control plugin</a>, and trying a different HTTP Transport.', 'health-check' ), 'http://wordpress.org/extend/plugins/core-control/' );
 			$importance = HEALTH_CHECK_ERROR;
