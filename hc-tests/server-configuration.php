@@ -312,20 +312,15 @@ HealthCheck::register_test('HealthCheck_Memcache_Status');
 
 
 /**
- * Check file permissions
+ * Check for executable files
  * 
  * @author Denis de Bernardy
  */
-class HealthCheck_Permissions extends HealthCheckTest {
+class HealthCheck_Executable extends HealthCheckTest {
 	function run_test() {
-		// Skip if IIS
-		global $is_apache;
-		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
-			return;
-		
 		foreach ( array(
 			ABSPATH . 'wp-admin',
-			ABSPATH . 'wp-includes',
+			ABSPATH . WPINC,
 			WP_CONTENT_DIR,
 			) as $dir ) {
 			$this->count_executable_files($dir, true);
@@ -362,5 +357,5 @@ class HealthCheck_Permissions extends HealthCheckTest {
 		return $count;
 	}
 }
-HealthCheck::register_test('HealthCheck_Permissions');
+HealthCheck::register_test('HealthCheck_Executable');
 ?>
