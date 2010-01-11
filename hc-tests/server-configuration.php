@@ -486,4 +486,33 @@ EOS;
 	}
 }
 HealthCheck::register_test('HealthCheck_ModSecurity');
+
+
+/**
+ * Check that the Webserver's process user is the same as the file owner
+ * 
+ * @link http://www.suphp.org/
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ProcessUser extends HealthCheckTest {
+	function run_test() {
+		$test_dir = rtrim(wp_cache_get('test_dir', 'health_check'), '/');
+		if ( ( !$test_dir || !function_exists('getmyuid') || !function_exists('fileowner') ) && !HEALTH_CHECK_DEBUG )
+			return; // can't test...
+		$test_file = $test_dir . '/health-check-' . time();
+		$fp = @fopen($test_file, 'w');
+		$check = false;
+		if ( $fp ) {
+			$check = ( getmyuid() == @fileowner($test_file) );
+			@fclose($fp);
+			@unlink($test_file);
+		}
+		
+		$message = sprintf( __( 'Your Webserver is not running as the filesystem owner of your WordPress files. Were it doing so, WordPress upgrades (core, theme and plugin) would be faster and more reliable. This can be achieved by using <a href="%s">SuPHP</a>, among other possibilities. Please enquire with your host.', 'health-check' ), 'http://www.suphp.org/');
+		$passed = $this->assertTrue($check,
+									$message,
+									HEALTH_CHECK_INFO );
+	}
+}
+HealthCheck::register_test('HealthCheck_ProcessUser');
 ?>
