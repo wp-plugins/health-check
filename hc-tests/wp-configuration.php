@@ -144,7 +144,8 @@ HealthCheck::register_test('HealthCheck_HTTP');
  */
 class HealthCheck_Cron extends HealthCheckTest {
 	function run_test() {
-		if ( get_transient('health_check_activated') ) {
+		if ( !get_transient('health_check_activated')
+			|| ( time() - get_transient('health_check_activated') <= 3600 ) ) {
 			$message = __( 'The WordPress Cron test has yet to run. Please try again in a few minutes.', 'health-check' );
 			$importance = HEALTH_CHECK_INFO;
 		} else {
@@ -152,7 +153,7 @@ class HealthCheck_Cron extends HealthCheckTest {
 			$importance = HEALTH_CHECK_ERROR;
 		}
 		$this->assertTrue(	get_transient('health_check_cron_check')
-							&& ( get_transient('health_check_cron_check') - time() <= 86400 ),
+							&& ( time() - get_transient('health_check_cron_check') <= 86400 ),
 							$message,
 							$importance );
 	}

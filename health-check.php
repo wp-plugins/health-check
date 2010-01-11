@@ -239,7 +239,6 @@ class HealthCheck {
 
 	function cron_test() {
 		set_transient('health_check_cron_check', time());
-		delete_transient('health_check_activated'); // no longer useful
 	} # cron_test()
 	
 	/**
@@ -251,9 +250,8 @@ class HealthCheck {
 	 **/
 
 	function init_cron_test() {
-		if ( !get_transient('health_check_cron_check_enabled') ) {
-			set_transient('health_check_cron_check_enabled', 1);
-			set_transient('health_check_activated', 1, 3600); // give it an hour to run the cron
+		if ( !get_transient('health_check_activated') ) {
+			set_transient('health_check_activated', time());
 			delete_transient('health_check_cron_check');
 			wp_clear_scheduled_hook('health_check_cron_check');
 			wp_schedule_single_event(time() - 86400, 'health_check_cron_check');
