@@ -402,19 +402,18 @@ EOS;
 
 			$res = wp_remote_get("$test_url/health-check/");
 
-			@unlink("$test_dir/health-check/.htaccess");
-			@unlink("$test_dir/health-check/test.txt");
-			@rmdir("$test_dir/health-check/");
-
 			$checked = true;
 
 			$message = sprintf(__('Your Webserver does not have mod_rewrite, or WordPress cannot enable its custom rewrite rules using a .htaccess file. This will prevent <a href="%s">fancy URLs</a> from working on your site without prepending them with /index.php. Please contact your host to have them fix this.', 'health-check'), 'options-permalink.php');
-			$importance = HEALTH_CHECK_RECOMMENDATION;
 			$this->assertTrue(	( $res['response']['code'] == 200 ) && ( $res['body'] == 'OK' ),
 								$message,
 								HEALTH_CHECK_RECOMMENDATION );
 		}
-		
+
+		@unlink("$test_dir/health-check/.htaccess");
+		@unlink("$test_dir/health-check/test.txt");
+		@rmdir("$test_dir/health-check/");
+
 		if ( !$checked || HEALTH_CHECK_DEBUG ) {
 			$message = sprintf(__('WordPress failed to detect mod_write on your Webserver. It might be around... or not. If can prevent <a href="%s">fancy URLs</a> from working on your site without prepending them with /index.php. Please contact your host to have them fix this.', 'health-check'), 'options-permalink.php');
 			$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
@@ -439,10 +438,53 @@ class HealthCheck_ModSecurity extends HealthCheckTest {
 		global $is_apache;
 		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
+
 		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
-		$this->assertFalse(	apache_mod_loaded('mod_security'),
-							$message,
-							HEALTH_CHECK_INFO );
+		$passed = $this->assertFalse(	apache_mod_loaded('mod_security'),
+										$message,
+										HEALTH_CHECK_INFO );
+
+		if ( !$passed && !HEALTH_CHECK_DEBUG )
+			return; // stop here, since we're already sure it's around
+
+		$test_dir = rtrim(wp_cache_get('test_dir', 'health_check'), '/');
+		$test_url = rtrim(wp_cache_get('test_url', 'health_check'), '/');
+		$http_api = wp_cache_get('http_api', 'health_check');
+		$checked = false;
+		switch ( true ) {
+		default:
+			if ( !$test_dir || !$test_url || !$http_api || !wp_mkdir_p($test_dir . '/health-check') )
+				break;
+			// try to detect mod_security in a fast cgi environment
+			$test_path = parse_url($test_url);
+			$test_path = $test_path['path'];
+			$htaccess = <<<EOS
+
+SecFilterEngine On
+
+EOS;
+			// a reliable file lock is only around in PHP 5.1
+			// and there's little point in acquiring any
+			if ( !( $fp = @fopen("$test_dir/health-check/.htaccess", 'w') )
+				|| !@fwrite($fp, $htaccess) || !@fclose($fp) )
+				break; // bail
+
+			if ( !( $fp = @fopen("$test_dir/health-check/test.txt", 'w') )
+				|| !@fwrite($fp, 'OK') || !@fclose($fp) )
+				break; // bail
+
+			$res = wp_remote_get("$test_url/health-check/test.txt");
+
+			$checked = true;
+			$this->assertEquals($res['response']['code'],
+								500,
+								$message,
+								HEALTH_CHECK_INFO );
+		}
+
+		@unlink("$test_dir/health-check/.htaccess");
+		@unlink("$test_dir/health-check/test.txt");
+		@rmdir("$test_dir/health-check/");
 	}
 }
 HealthCheck::register_test('HealthCheck_ModSecurity');
