@@ -210,58 +210,6 @@ HealthCheck::register_test('HealthCheck_XMLRPC');
 
 
 /**
- * Check for apache functions and mod_rewrite
- * 
- * @link http://php.net/manual/en/ref.apache.php
- * @author Denis de Bernardy
- */
-class HealthCheck_ModRewrite extends HealthCheckTest {
-	function run_test() {
-		// Skip if IIS
-		global $is_apache;
-		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
-			return;
-		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. These make it easier for WordPress to detect the availability of Apache modules such as mod_rewrite. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
-		$passed = $this->assertTrue(function_exists('apache_get_modules'),
-									$message,
-									HEALTH_CHECK_RECOMMENDATION );
-
-		if ( !$passed ) {
-			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver, from lack of proper means to detect it. WordPress assumes it is present, but <a href="%s">Apache functions</a> would be needed to ensure proper detection. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
-		} else {
-			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver. <a href="%s">Fancy permalinks</a> will not work without it, unless you prepend your permalink structure with /index.php.', 'health-check' ), 'options-permalink.php');
-		}
-		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
-							$message,
-							HEALTH_CHECK_RECOMMENDATION );
-	}
-}
-HealthCheck::register_test('HealthCheck_ModRewrite');
-
-
-/**
- * Check for mod_security
- * 
- * @link http://wordpress.org/search/mod_security?forums=1
- * @link http://wordpress.org/support/topic/256526
- * @author Denis de Bernardy
- */
-class HealthCheck_ModSecurity extends HealthCheckTest {
-	function run_test() {
-		// Skip if IIS
-		global $is_apache;
-		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
-			return;
-		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
-		$this->assertFalse(	apache_mod_loaded('mod_security'),
-							$message,
-							HEALTH_CHECK_INFO );
-	}
-}
-HealthCheck::register_test('HealthCheck_ModSecurity');
-
-
-/**
  * Check the memcache status
  * 
  * @author Denis de Bernardy
@@ -358,4 +306,56 @@ class HealthCheck_Executable extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_Executable');
+
+
+/**
+ * Check for apache functions and mod_rewrite
+ * 
+ * @link http://php.net/manual/en/ref.apache.php
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ModRewrite extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		global $is_apache;
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
+			return;
+		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. These make it easier for WordPress to detect the availability of Apache modules such as mod_rewrite. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		$passed = $this->assertTrue(function_exists('apache_get_modules'),
+									$message,
+									HEALTH_CHECK_RECOMMENDATION );
+
+		if ( !$passed ) {
+			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver, from lack of proper means to detect it. WordPress assumes it is present, but <a href="%s">Apache functions</a> would be needed to ensure proper detection. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
+		} else {
+			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver. <a href="%s">Fancy permalinks</a> will not work without it, unless you prepend your permalink structure with /index.php.', 'health-check' ), 'options-permalink.php');
+		}
+		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_ModRewrite');
+
+
+/**
+ * Check for mod_security
+ * 
+ * @link http://wordpress.org/search/mod_security?forums=1
+ * @link http://wordpress.org/support/topic/256526
+ * @author Denis de Bernardy
+ */
+class HealthCheck_ModSecurity extends HealthCheckTest {
+	function run_test() {
+		// Skip if IIS
+		global $is_apache;
+		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
+			return;
+		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
+		$this->assertFalse(	apache_mod_loaded('mod_security'),
+							$message,
+							HEALTH_CHECK_INFO );
+	}
+}
+HealthCheck::register_test('HealthCheck_ModSecurity');
 ?>
