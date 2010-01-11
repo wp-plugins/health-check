@@ -370,19 +370,57 @@ class HealthCheck_ModRewrite extends HealthCheckTest {
 		global $is_apache;
 		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
-		$message = sprintf(__( 'Your Webserver does not have <a href="%s">Apache functions</a>. These make it easier for WordPress to detect the availability of Apache modules such as mod_rewrite. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
-		$passed = $this->assertTrue(function_exists('apache_get_modules'),
-									$message,
-									HEALTH_CHECK_RECOMMENDATION );
+		
+		$test_dir = rtrim(wp_cache_get('test_dir', 'health_check'), '/');
+		$test_url = rtrim(wp_cache_get('test_url', 'health_check'), '/');
+		$http_api = wp_cache_get('http_api', 'health_check');
+		$checked = false;
+		switch ( true ) {
+		default:
+			if ( !$test_dir || !$test_url || !$http_api || !wp_mkdir_p($test_dir . '/health-check') )
+				break;
+			// we might be able to test that mod_rewrite actually *works*
+			$test_path = parse_url($test_url);
+			$test_path = $test_path['path'];
+			$htaccess = <<<EOS
 
-		if ( !$passed ) {
-			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver, from lack of proper means to detect it. WordPress assumes it is present, but <a href="%s">Apache functions</a> would be needed to ensure proper detection. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/ref.apache.php');
-		} else {
-			$message = sprintf(__( 'WordPress failed to detect Apache\'s mod_rewrite module on your Webserver. <a href="%s">Fancy permalinks</a> will not work without it, unless you prepend your permalink structure with /index.php.', 'health-check' ), 'options-permalink.php');
+RewriteEngine On
+RewriteBase $test_path/health-check/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ $test_path/health-check/test.txt [L]
+
+EOS;
+			// a reliable file lock is only around in PHP 5.1
+			// and there's little point in acquiring any
+			if ( !( $fp = @fopen("$test_dir/health-check/.htaccess", 'w') )
+				|| !@fwrite($fp, $htaccess) || !@fclose($fp) )
+				break; // bail
+
+			if ( !( $fp = @fopen("$test_dir/health-check/test.txt", 'w') )
+				|| !@fwrite($fp, 'OK') || !@fclose($fp) )
+				break; // bail
+
+			$res = wp_remote_get("$test_url/health-check/");
+
+			@unlink("$test_dir/health-check/.htaccess");
+			@unlink("$test_dir/health-check/test.txt");
+			@rmdir("$test_dir/health-check/");
+
+			$checked = true;
+
+			$message = sprintf(__('Your Webserver does not have mod_rewrite, or WordPress cannot enable its custom rewrite rules using a .htaccess file. This will prevent <a href="%s">fancy URLs</a> from working on your site without prepending them with /index.php. Please contact your host to have them fix this.', 'health-check'), 'options-permalink.php');
+			$importance = HEALTH_CHECK_RECOMMENDATION;
+			$this->assertTrue(	( $res['response']['code'] == 200 ) && ( $res['body'] == 'OK' ),
+								$message,
+								HEALTH_CHECK_RECOMMENDATION );
 		}
-		$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
-							$message,
-							HEALTH_CHECK_RECOMMENDATION );
+		
+		if ( !$checked || HEALTH_CHECK_DEBUG ) {
+			$message = sprintf(__('WordPress failed to detect mod_write on your Webserver. It might be around... or not. If can prevent <a href="%s">fancy URLs</a> from working on your site without prepending them with /index.php. Please contact your host to have them fix this.', 'health-check'), 'options-permalink.php');
+			$this->assertTrue(	apache_mod_loaded('mod_rewrite'),
+								$message,
+								HEALTH_CHECK_INFO );
+		}
 	}
 }
 HealthCheck::register_test('HealthCheck_ModRewrite');
