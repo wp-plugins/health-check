@@ -379,7 +379,7 @@ class HealthCheck_Suhosin extends HealthCheckTest {
 			}
 		}
 		
-		$message = sprintf(__( 'Your Webserver is using the <a href="%1$s">Suhosin patch</a> with over-zealous security settings. Suhosin is an extreme source of grief for large PHP applications, and ought to be your primary suspect if you experience very weird WordPress issues. The symptoms include messages with cryptic resource limits, partially loaded pages, and partially saved data. This plugin checks for <a href="%2$s">filtering restrictions</a> and memory restrictions (256M min). Please contact your host to have them increased.', 'health-check' ), 'http://www.hardened-php.net/suhosin/', 'http://www.hardened-php.net/suhosin/configuration.html#filtering_options');
+		$message = sprintf(__( 'Your Webserver is using the <a href="%1$s">Suhosin patch</a> with over-zealous security settings. Suhosin is an extreme source of grief for large PHP applications, and ought to be a primary suspect if you experience very weird WordPress issues. The symptoms include messages with cryptic resource limits, partially loaded pages, and partially saved data. This plugin checks for <a href="%2$s">filtering restrictions</a> and memory restrictions (256M min). Please contact your host to have them increased.', 'health-check' ), 'http://www.hardened-php.net/suhosin/', 'http://www.hardened-php.net/suhosin/configuration.html#filtering_options');
 		$this->assertTrue(	$check,
 							$message,
 							HEALTH_CHECK_RECOMMENDATION );

@@ -439,7 +439,7 @@ class HealthCheck_ModSecurity extends HealthCheckTest {
 		if ( !$is_apache && !HEALTH_CHECK_DEBUG )
 			return;
 
-		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be your primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
+		$message = sprintf(__( 'Your Webserver has mod_security turned on. While it\'s generally fine to have it turned on, this Apache module ought to be a primary suspect if you experience very weird WordPress issues. In particular random 403/404 errors, random errors when uploading files, random errors when saving a post, or any other random looking errors for that matter. Please contact your host if you experience any of them, and highlight <a href="%s$1">these support threads</a>. Alternatively, visit <a href="%2$s">this support thread</a> for ideas on how to turn it off, if your host refuses to help.', 'health-check' ), 'http://wordpress.org/search/mod_security?forums=1', 'http://wordpress.org/support/topic/256526');
 		$passed = $this->assertFalse(	apache_mod_loaded('mod_security'),
 										$message,
 										HEALTH_CHECK_INFO );
@@ -450,7 +450,6 @@ class HealthCheck_ModSecurity extends HealthCheckTest {
 		$test_dir = rtrim(wp_cache_get('test_dir', 'health_check'), '/');
 		$test_url = rtrim(wp_cache_get('test_url', 'health_check'), '/');
 		$http_api = wp_cache_get('http_api', 'health_check');
-		$checked = false;
 		switch ( true ) {
 		default:
 			if ( !$test_dir || !$test_url || !$http_api || !wp_mkdir_p($test_dir . '/health-check') )
@@ -475,7 +474,6 @@ EOS;
 
 			$res = wp_remote_get("$test_url/health-check/test.txt");
 
-			$checked = true;
 			$this->assertEquals($res['response']['code'],
 								500,
 								$message,
