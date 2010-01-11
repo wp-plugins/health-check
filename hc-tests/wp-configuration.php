@@ -87,128 +87,26 @@ HealthCheck::register_test('HealthCheck_Oversized_Options');
 
 
 /**
- * Check that the HTTP API works, and do checks that use the HTTP API if it does
+ * Check that the RSS feed doesn't contain leading white space
  * 
- * @link http://wordpress.org/extend/plugins/core-control/
- * @link http://codex.wordpress.org/Creating_a_Favicon
- * @link http://core.trac.wordpress.org/ticket/3426
  * @author Denis de Bernardy
  */
-class HealthCheck_HTTP extends HealthCheckTest {
+class HealthCheck_RSS_Feed extends HealthCheckTest {
 	function run_test() {
-		$url = admin_url('admin-post.php?action=health-check');
+		if ( !wp_cache_get('http_api', 'health_check') && !HEALTH_CHECK_DEBUG )
+			return;
+		
+		$url = get_feed_link('rss2');
 		$res = wp_remote_fopen($url);
-		
-		$message = sprintf(__( 'WordPress failed the HTTP API test. If this check consistently fails, consider installing the <a href="%s">Core Control plugin</a>, and trying a different HTTP Transport.', 'health-check' ), 'http://wordpress.org/extend/plugins/core-control/' );
-		$passed = $this->assertEquals(	$res,
-										'OK',
-										$message,
-										HEALTH_CHECK_ERROR );
-		
-		if ( $passed || HEALTH_CHECK_DEBUG ) { // no point in trying these if HTTP doesn't work at all
-			// the site might be in a subfolder
-			$url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . '/favicon.ico';
-			$res = wp_remote_head($url);
-			
-			if ( preg_replace("{^[^/]+://}", '', get_option('home')) == $_SERVER['HTTP_HOST'] ) {
-				$message = sprintf(__( 'Your WordPress installation doesn\'t seem to have a <a href="%1$s">favicon file</a>. This can <a href="%2$s">significantly impact your site\'s performance</a>. Consider adding such a file so 404 errors don\'t occur on every page load.', 'health-check' ), 'http://codex.wordpress.org/Creating_a_Favicon', 'http://core.trac.wordpress.org/ticket/3426');
-				$importance = HEALTH_CHECK_RECOMMENDATION;
-			} else {
-				$message = sprintf(__( 'Your domain doesn\'t seem to have a <a href="%1$s">favicon file</a>. Consider adding such a file so 404 errors don\'t occur on every page load.', 'health-check' ), 'http://codex.wordpress.org/Creating_a_Favicon');
-				$importance = HEALTH_CHECK_INFO;
-			}
-			$this->assertNotEquals(	$res['response']['code'],
-									404,
-									$message,
-									$importance );
 
-			$url = get_feed_link('rss2');
-			$res = wp_remote_fopen($url);
-
-			$message = __( 'WordPress has detected that your installation\'s RSS feed contains leading white space characters. Typically, these are present because your <code>wp-config.php</code> file or your theme\'s <code>functions.php</code> file contains leading or trailing white space. More rarely, it is due to plugin files. This white space can prevent your RSS feed from working, and should be removed. Edit these files one by one, and trim any white space before the <code>&lt;?php</code> at the very beginning of the file, and after the <code>?&gt;</code> at the very end of the file (if the latter is present).', 'health-check' );
-			$this->assertNotEquals(	trim(substr($res, 1)),
-												'',
-												$message,
-												HEALTH_CHECK_ERROR );
-			
-			if ( get_option('enable_xmlrpc') && is_file(ABSPATH . '/xmlrpc.php') || HEALTH_CHECK_DEBUG ) {
-				$url = trailingslashit(get_option('home'));
-				$res = wp_remote_fopen($url);
-
-				ob_start();
-				rsd_link();
-				$rsd_link = trim(ob_get_contents());
-				ob_end_clean();
-
-				$message = __( 'Your WordPress installation doesn\'t seem to be exposing its XML-RPC interface. Please make sure that you theme\'s <code>header.php</code> file contains the following template tag: <code>&lt;php wp_head() ?&gt;</code>.', 'health-check' );
-				$this->assertTrue(	strpos($res, $rsd_link) !== false,
-									$message,
-									HEALTH_CHECK_ERROR );
-				
-				$url = site_url('/xmlrpc.php?rsd');
-				$res = wp_remote_fopen($url);
-				$charset = strtoupper(get_option('blog_charset'));
-				$checked = false;
-				$success = false;
-				if ( extension_loaded('simplexml') ) {
-					$checked = true;
-					$success = @simplexml_load_string($res);
-				} elseif ( function_exists('xml_parser_create') && in_array($charset, array('UTF-8', 'ISO-8859-1', 'US-ASCII')) ) {
-					// http://php.net/manual/en/function.xml-parser-create.php
-					$checked = true;
-					$parser = xml_parser_create($charset);
-					$success = @xml_parse($parser, $res, true);
-					@xml_parser_free($parser);
-				}
-				
-				if ( $checked || HEALTH_CHECK_DEBUG ) {
-					$message = sprintf( __( 'Your WordPress installation\'s XML-RPC interface doesn\'t return a valid XML response. Typically, this means that your host is blocking %s or it is inserting ads in it. Please get in touch with them to have them fix this.', 'health-check' ), $url );
-					$passed = $this->assertTrue((bool) $success,
-												$message,
-												HEALTH_CHECK_ERROR );
-				} else { // skip the next check, since we can't parse the reply
-					$passed = false;
-				}
-
-				if ( $passed || HEALTH_CHECK_DEBUG ) {
-					require_once ABSPATH . WPINC . '/class-IXR.php';
-					$rpc = new IXR_Client($url);
-
-					$message = sprintf( __( 'Your WordPress installation\'s XML-RPC interface doesn\'t seem to be working. Chances are that your host is blocking %s. Please get in touch with them to have them fix this.', 'health-check' ), $url );
-					$this->assertTrue(	$rpc->query('system.listMethods'),
-										$message,
-										HEALTH_CHECK_ERROR );
-				}
-			}
-		}
+		$message = __( 'WordPress has detected that your installation\'s RSS feed contains leading white space characters. Typically, these are present because your <code>wp-config.php</code> file or your theme\'s <code>functions.php</code> file contains leading or trailing white space. More rarely, it is due to plugin files. This white space can prevent your RSS feed from working, and should be removed. Edit these files one by one, and trim any white space before the <code>&lt;?php</code> at the very beginning of the file, and after the <code>?&gt;</code> at the very end of the file (if the latter is present).', 'health-check' );
+		$this->assertNotEquals(	trim(substr($res, 1)),
+								'',
+								$message,
+								HEALTH_CHECK_ERROR );
 	}
 }
-HealthCheck::register_test('HealthCheck_HTTP');
-
-
-/**
- * Check that the cron is working at all
- * 
- * @link http://wordpress.org/extend/plugins/core-control/
- * @author Denis de Bernardy
- */
-class HealthCheck_Cron extends HealthCheckTest {
-	function run_test() {
-		if ( !get_transient('health_check_activated')
-			|| ( time() - get_transient('health_check_activated') <= 3600 ) ) {
-			$message = __( 'The WordPress Cron test has yet to run. Please try again in a few minutes.', 'health-check' );
-			$importance = HEALTH_CHECK_INFO;
-		} else {
-			$message = sprintf(__( 'The WordPress cron doesn\'t seem to be working. If this check consistently fails, consider installing the <a href="%s">Core Control plugin</a>, and trying a different HTTP Transport.', 'health-check' ), 'http://wordpress.org/extend/plugins/core-control/' );
-			$importance = HEALTH_CHECK_ERROR;
-		}
-		$this->assertTrue(	get_transient('health_check_cron_check')
-							&& ( time() - get_transient('health_check_cron_check') <= 86400 ),
-							$message,
-							$importance );
-	}
-}
-HealthCheck::register_test('HealthCheck_Cron');
+HealthCheck::register_test('HealthCheck_RSS_Feed');
 
 
 /**

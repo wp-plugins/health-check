@@ -27,6 +27,7 @@ class HealthCheck {
 		foreach ( array('admin_post_health-check', 'admin_post_nopriv_health-check') as $hook )
 			add_action($hook, array('HealthCheck', 'http_test'));
 		HealthCheck::init_cron_test();
+		wp_cache_add_non_persistent_groups(array('health_check'));
 	}
 
 	function action_admin_menu() {
@@ -185,7 +186,7 @@ class HealthCheck {
 		$hc_includes = plugin_dir_path(__FILE__) . 'hc-includes/';
 		require_once($hc_includes . 'class.health-check-test.php');
 		require_once($hc_includes . 'class.health-check-test-result.php');
-		require_once($hc_includes . '/versions.php');
+		require_once($hc_includes . 'versions.php');
 	}
 
 	/**
