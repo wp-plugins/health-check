@@ -260,6 +260,56 @@ HealthCheck::register_test('HealthCheck_Memcache_Status');
 
 
 /**
+ * Check that the wp-content dir and/or the uploads dir is writable
+ * 
+ * @author Denis de Bernardy
+ */
+class HealthCheck_Permissions extends HealthCheckTest {
+	function run_test() {
+		$func = create_function('', 'return 0;');
+		add_filter('pre_option_uploads_use_yearmonth_folders', $func);
+		$upload_dir = wp_upload_dir();
+		remove_filter('pre_option_uploads_use_yearmonth_folders', $func);
+		
+		$message = __( 'Your WordPress installation cannot write to your <code>wp-content/uploads</code> folder. This prevents file uploads from working properly.', 'health-check' );
+		$passed = $this->assertTrue(!is_wp_error($upload_dir) && is_writable($upload_dir['basedir']),
+									$message,
+									HEALTH_CHECK_ERROR );
+
+		if ( $passed ) {
+			wp_cache_set('test_dir', $upload_dir['basedir'], 'health_check');
+			wp_cache_set('test_url', $upload_dir['baseurl'], 'health_check');
+			$message = __( 'Your WordPress installation cannot write to your <code>wp-content</code> folder. This can prevent some plugins working properly.', 'health-check' );
+			$importance = HEALTH_CHECK_INFO;
+		} else {
+			$message = __( 'Your WordPress installation cannot write to your <code>wp-content</code> folder. This prevents WordPress from setting up an uploads folder, and it can prevent some plugins working properly.', 'health-check' );
+			$importance = HEALTH_CHECK_ERROR;
+		}
+
+		$passed = $this->assertTrue(is_writable(WP_CONTENT_DIR),
+									$message,
+									$importance );
+		if ( $passed ) {
+			// prefer to do tests in WP_CONTENT_DIR in case an access restriction script is around
+			wp_cache_set('test_dir', WP_CONTENT_DIR, 'health_check');
+			wp_cache_set('test_url', WP_CONTENT_URL, 'health_check');
+		}
+
+		$message = __( 'Your WordPress installation cannot write to your <code>wp-config.php</code> file. This prevent can prevent cache plugins from enabling/disabling themselves automatically.', 'health-check' );
+		$passed = $this->assertTrue(is_writable(ABSPATH . 'wp-config.php'),
+									$message,
+									HEALTH_CHECK_INFO );
+
+		$message = __( 'Your WordPress installation cannot write to your <code>.htaccess</code> file. This prevent can prevent plugins from some of their functionality automatically.', 'health-check' );
+		$passed = $this->assertTrue(is_writable(ABSPATH . '.htaccess'),
+									$message,
+									HEALTH_CHECK_INFO );
+	}
+}
+HealthCheck::register_test('HealthCheck_Permissions');
+
+
+/**
  * Check for executable files
  * 
  * @author Denis de Bernardy
