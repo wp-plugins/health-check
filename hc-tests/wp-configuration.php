@@ -126,10 +126,60 @@ class HealthCheck_HTTP extends HealthCheckTest {
 			$res = wp_remote_fopen($url);
 
 			$message = __( 'WordPress has detected that your installation\'s RSS feed contains leading white space characters. Typically, these are present because your <code>wp-config.php</code> file or your theme\'s <code>functions.php</code> file contains leading or trailing white space. More rarely, it is due to plugin files. This white space can prevent your RSS feed from working, and should be removed. Edit these files one by one, and trim any white space before the <code>&lt;?php</code> at the very beginning of the file, and after the <code>?&gt;</code> at the very end of the file (if the latter is present).', 'health-check' );
-			$passed = $this->assertNotEquals(	trim(substr($res, 1)),
+			$this->assertNotEquals(	trim(substr($res, 1)),
 												'',
 												$message,
 												HEALTH_CHECK_ERROR );
+			
+			if ( get_option('enable_xmlrpc') && is_file(ABSPATH . '/xmlrpc.php') || HEALTH_CHECK_DEBUG ) {
+				$url = trailingslashit(get_option('home'));
+				$res = wp_remote_fopen($url);
+
+				ob_start();
+				rsd_link();
+				$rsd_link = trim(ob_get_contents());
+				ob_end_clean();
+
+				$message = __( 'Your WordPress installation doesn\'t seem to be exposing its XML-RPC interface. Please make sure that you theme\'s <code>header.php</code> file contains the following template tag: <code>&lt;php wp_head() ?&gt;</code>.', 'health-check' );
+				$this->assertTrue(	strpos($res, $rsd_link) !== false,
+									$message,
+									HEALTH_CHECK_ERROR );
+				
+				$url = site_url('/xmlrpc.php?rsd');
+				$res = wp_remote_fopen($url);
+				$charset = strtoupper(get_option('blog_charset'));
+				$checked = false;
+				$success = false;
+				if ( extension_loaded('simplexml') ) {
+					$checked = true;
+					$success = @simplexml_load_string($res);
+				} elseif ( function_exists('xml_parser_create') && in_array($charset, array('UTF-8', 'ISO-8859-1', 'US-ASCII')) ) {
+					// http://php.net/manual/en/function.xml-parser-create.php
+					$checked = true;
+					$parser = xml_parser_create($charset);
+					$success = @xml_parse($parser, $res, true);
+					@xml_parser_free($parser);
+				}
+				
+				if ( $checked || HEALTH_CHECK_DEBUG ) {
+					$message = sprintf( __( 'Your WordPress installation\'s XML-RPC interface doesn\'t return a valid XML response. Typically, this means that your host is blocking %s or it is inserting ads in it. Please get in touch with them to have them fix this.', 'health-check' ), $url );
+					$passed = $this->assertTrue((bool) $success,
+												$message,
+												HEALTH_CHECK_ERROR );
+				} else { // skip the next check, since we can't parse the reply
+					$passed = false;
+				}
+
+				if ( $passed || HEALTH_CHECK_DEBUG ) {
+					require_once ABSPATH . WPINC . '/class-IXR.php';
+					$rpc = new IXR_Client($url);
+
+					$message = sprintf( __( 'Your WordPress installation\'s XML-RPC interface doesn\'t seem to be working. Chances are that your host is blocking %s. Please get in touch with them to have them fix this.', 'health-check' ), $url );
+					$this->assertTrue(	$rpc->query('system.listMethods'),
+										$message,
+										HEALTH_CHECK_ERROR );
+				}
+			}
 		}
 	}
 }
