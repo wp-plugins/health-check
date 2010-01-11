@@ -112,7 +112,7 @@ class HealthCheck {
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
 		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, %6$d failed as pending and %7$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $pending, $notices );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $notices );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
