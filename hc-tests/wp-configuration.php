@@ -178,4 +178,44 @@ class HealthCheck_InactiveWidgets extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_InactiveWidgets');
+
+
+/**
+ * Check for drop in files
+ * 
+ * @link http://core.trac.wordpress.org/ticket/11861
+ * @author Denis de Bernardy
+ */
+class HealthCheck_DropInFiles extends HealthCheckTest {
+	function run_test() {
+		$files = array();
+		foreach ( array(
+			'db.php',
+			'advanced-cache.php',
+			'object-cache.php',
+			) as $file ) {
+			if ( file_exists(WP_CONTENT_DIR . '/' . $file) )
+				$files[] = $file;
+		}
+		$files = implode(__('</code>, <code>', 'health-check'), $files);
+		$message = sprintf(__( 'Your WordPress installation has drop-in files in its wp-content folder: <code>%1$s</code>. In the event that you added them manually, be sure to keep them up to date. Forgetting to do so can create issues that are <a href="%2$s">very hard to diagnose</a>.', 'health-check' ), $files, 'http://core.trac.wordpress.org/ticket/11861' );
+		$this->assertEquals($files,
+							'',
+							$message,
+							HEALTH_CHECK_INFO );
+		
+		$files = array();
+		if ( defined('WPMU_PLUGIN_DIR') && is_dir(WPMU_PLUGIN_DIR) ) {
+			foreach ( glob(WPMU_PLUGIN_DIR . '/*.php') as $file )
+				$files[] = basename($file);
+		}
+		$files = implode(__('</code>, <code>', 'health-check'), $files);
+		$message = sprintf(__( 'Your WordPress installation has drop-in files in its wp-content/mu-plugins folder: <code>%1$s</code>. In the event that you added them manually, be sure to keep them up to date. Forgetting to do so can create issues that are <a href="%2$s">very hard to diagnose</a>.', 'health-check' ), $files, 'http://core.trac.wordpress.org/ticket/11861' );
+		$this->assertEquals($files,
+							'',
+							$message,
+							HEALTH_CHECK_INFO );
+	}
+}
+HealthCheck::register_test('HealthCheck_DropInFiles');
 ?>
