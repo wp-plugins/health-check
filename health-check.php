@@ -79,6 +79,9 @@ class HealthCheck {
 	 */
 	function run_tests() {
 		foreach ($GLOBALS['_HealthCheck_Instance']->registered_tests as $classname) {
+			if ( HEALTH_CHECK_DEBUG && is_string(HEALTH_CHECK_DEBUG) && HEALTH_CHECK_DEBUG != $classname )
+				continue;
+			
 			$results = array();
 			
 			if ( class_exists( $classname ) ) {
