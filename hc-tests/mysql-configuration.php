@@ -98,11 +98,11 @@ class HealthCheck_MySQL_Charset extends HealthCheckTest {
 		
 		global $wpdb;
 		
-		$db_charset = $wpdb->get_var('SHOW CREATE DATABASE ' . DB_NAME, 1);
+		$db_charset = $wpdb->get_var('SHOW CREATE DATABASE `' . DB_NAME . '`', 1);
 		preg_match("/CHARACTER SET ([a-z0-9_]+)/i", $db_charset, $db_charset);
 		$db_charset = end($db_charset);
 		
-		$table_charset = $wpdb->get_var('SHOW CREATE TABLE ' . $wpdb->posts, 1);
+		$table_charset = $wpdb->get_var('SHOW CREATE TABLE `' . $wpdb->posts . '`', 1);
 		preg_match("/CHARSET\s*=\s*([a-z0-9_]+)/i", $table_charset, $table_charset);
 		$table_charset = end($table_charset);
 		
