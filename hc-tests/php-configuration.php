@@ -284,15 +284,26 @@ HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
  */
 class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
 	function run_test() {
-		$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. You can read more <a href="%3$s">here</a>. Please contact your host to have them fix this.', 'health-check'),
-							PHP_VERSION,
-							LIBXML_DOTTED_VERSION,
-							'http://josephscott.org/code/wordpress/plugin-libxml2-fix/');
-		$this->assertNotEquals( '2.6.27', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
-		$this->assertNotEquals( '2.7.0', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
-		$this->assertNotEquals( '2.7.1', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
-		$this->assertNotEquals( '2.7.2', LIBXML_DOTTED_VERSION, $message, HEALTH_CHECK_ERROR );
-		$this->assertFalse( ( LIBXML_DOTTED_VERSION == '2.7.3' && version_compare( PHP_VERSION, '5.2.9', '<' ) ), $message, HEALTH_CHECK_ERROR );
+		if ( !function_exists('jms_libxml2_fix') ) {
+			$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. You can read more <a href="%3$s">here</a>. Please contact your host to have them fix this.', 'health-check'),
+								PHP_VERSION,
+								LIBXML_DOTTED_VERSION,
+								'http://josephscott.org/code/wordpress/plugin-libxml2-fix/');
+			$importance = HEALTH_CHECK_ERROR;
+		} else {
+			$message = sprintf(	__('Your webserver is running PHP version %1$s with libxml2 version %2$s which will cause problems with the XML-RPC remote posting functionality. A <a href="%3$s">workaround</a> is active on your site already. But you should contact your host to have them fix this nonetheless.', 'health-check'),
+								PHP_VERSION,
+								LIBXML_DOTTED_VERSION,
+								'http://josephscott.org/code/wordpress/plugin-libxml2-fix/');
+			$importance = HEALTH_CHECK_INFO;
+			
+		}
+		
+		$this->assertNotEquals( '2.6.27', LIBXML_DOTTED_VERSION, $message, $importance );
+		$this->assertNotEquals( '2.7.0', LIBXML_DOTTED_VERSION, $message, $importance );
+		$this->assertNotEquals( '2.7.1', LIBXML_DOTTED_VERSION, $message, $importance );
+		$this->assertNotEquals( '2.7.2', LIBXML_DOTTED_VERSION, $message, $importance );
+		$this->assertFalse( ( LIBXML_DOTTED_VERSION == '2.7.3' && version_compare( PHP_VERSION, '5.2.9', '<' ) ), $message, $importance );
 	}
 }
 HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
