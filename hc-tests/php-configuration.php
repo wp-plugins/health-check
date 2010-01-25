@@ -397,4 +397,21 @@ class HealthCheck_Suhosin extends HealthCheckTest {
 	}
 }
 HealthCheck::register_test('HealthCheck_Suhosin');
+
+/**
+ * Check that we've the zlib library
+ *
+ * @link http://php.net/manual/en/book.zlib.php
+ * @author Sudar
+ */
+class HealthCheck_zlib extends HealthCheckTest {
+	function run_test() {
+		$message = sprintf(__( 'Your Webserver does not have the <a href="%s">zlib library</a>. WordPress uses it for automatic updates, and for installing Plugins and themes. Please contact your host to have them fix this.', 'health-check' ), 'http://php.net/manual/en/book.zlib.php');
+		$this->assertTrue(	function_exists('gzopen'),
+							$message,
+							HEALTH_CHECK_RECOMMENDATION );
+	}
+}
+HealthCheck::register_test('HealthCheck_zlib');
+
 ?>
