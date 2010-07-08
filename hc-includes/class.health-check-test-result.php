@@ -19,8 +19,6 @@ if ( !defined('HEALTH_CHECK_DEBUG') )
 
 /**
  * Class to encapsulate the test results
- * 
- * @author peterwestwood
  *
  */
 class HealthCheckTestResult {

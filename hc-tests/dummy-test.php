@@ -8,7 +8,6 @@
 
 /**
  * Dummy test to check that everything is working for passing tests.
- * @author peterwestwood
  *
  */
 class HealthCheck_DummyTest_Pass extends HealthCheckTest {
@@ -23,7 +22,6 @@ HealthCheck::register_test( 'HealthCheck_DummyTest_Pass' );
 
 /**
  * Dummy test to check that everything is working for failing with recommendation tests.
- * @author peterwestwood
  *
  */
 class HealthCheck_DummyTest_Recommendation extends HealthCheckTest {
@@ -36,7 +34,6 @@ HealthCheck::register_test( 'HealthCheck_DummyTest_Recommendation' );
 
 /**
  * Dummy test to check that everything is working for failing with error tests.
- * @author peterwestwood
  *
  */
 class HealthCheck_DummyTest_Error extends HealthCheckTest {

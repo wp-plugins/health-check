@@ -9,8 +9,6 @@
  * Base class for all the different Tests to extend
  * 
  * Provides utility functionality where necessary
- * 
- * @author peterwestwood
  *
  */
 class HealthCheckTest {

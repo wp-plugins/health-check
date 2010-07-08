@@ -256,7 +256,6 @@ HealthCheck::register_test('HealthCheck_MB_String');
  * @link http://www.w3.org/International/O-HTTP-charset
  * @link http://www.iana.org/assignments/character-sets
  * @link http://blog.ftwr.co.uk/archives/2009/09/29/missing-dashboard-css-and-the-perils-of-smart-quotes/
- * @author Peter Westwood
  */
 class HealthCheck_PHP_DefaultCharset extends HealthCheckTest {
 	function run_test() {
@@ -280,7 +279,6 @@ HealthCheck::register_test('HealthCheck_PHP_DefaultCharset');
  * 
  * @link http://josephscott.org/code/wordpress/plugin-libxml2-fix/
  * @link http://core.trac.wordpress.org/ticket/7771
- * @author Peter Westwood
  */
 class HealthCheck_PHP_libxml2_XMLRPC extends HealthCheckTest {
 	function run_test() {
