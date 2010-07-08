@@ -15,10 +15,7 @@ class HealthCheck {
 	/*
 	 * An array containing the names of all the classes that have registered as tests.
 	 */
-	var $registered_tests = array();
 	var $test_results = array();
-	var $tests_run = 0;
-	var $assertions = 0;
 	
 	function action_plugins_loaded() {
 		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
@@ -71,42 +68,14 @@ class HealthCheck {
 	</div>
 <?php
 	}
-	
 	/**
-	 * Run all the tests that have been registered and store the results for outputting in a sorted fashion
-	 * 
-	 * @return none
+	 * Run all the tests in the correct order based on the dependancies
 	 */
 	function run_tests() {
-		foreach ($GLOBALS['_HealthCheck_Instance']->registered_tests as $classname) {
-			if ( HEALTH_CHECK_DEBUG && is_string(HEALTH_CHECK_DEBUG) && HEALTH_CHECK_DEBUG != $classname )
-				continue;
-			
-			$results = array();
-			
-			if ( class_exists( $classname ) ) {
-				$class = new $classname;
-				if (HealthCheck::_is_health_check_test($class) ) {
-					$class->run_test();
-					$results = $class->results;
-					$GLOBALS['_HealthCheck_Instance']->tests_run++;
-					$GLOBALS['_HealthCheck_Instance']->assertions += $class->assertions;
-				} else {
-					$res = new HealthCheckTestResult();
-					$res->markAsFailed( sprintf( __('Class %s has been registered as a test but it is not a subclass of HealthCheckTest.'), $classname), HEALTH_CHECK_ERROR);
-					$results[] = $res;
-				}
-			} else {
-				$res = new HealthCheckTestResult();
-				$res->markAsFailed( __('Class %s has been registered as a test but it has not been defined.'), HEALTH_CHECK_ERROR);
-				$results[] = $res;
-			}
-			// Save results grouped by severity
-			foreach ($results as $res) {
-				$GLOBALS['_HealthCheck_Instance']->test_results[$res->severity][] = $res;
-			}
-		}
+		// Run the tests
+		$GLOBALS['_HealthCheck_Tests']->do_items( );
 	}
+
 	
 	function output_test_stats() {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
@@ -114,7 +83,7 @@ class HealthCheck {
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
 		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
-		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Instance']->tests_run, $GLOBALS['_HealthCheck_Instance']->assertions, $passed, $errors, $recommendations, $notices );?></p>
+		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Tests']->tests_run, $GLOBALS['_HealthCheck_Tests']->assertions, $passed, $errors, $recommendations, $notices );?></p>
 <?php
 		if ($errors) {
 			echo '<div id="health-check-errors">';
@@ -154,8 +123,9 @@ class HealthCheck {
 	 * @param string $classname The name of a class which subclasses HealthCheckTest.
 	 * @return none
 	 */
-	function register_test($classname) {
-		$GLOBALS['_HealthCheck_Instance']->registered_tests[] = $classname;
+	function register_test($classname, $deps = array() ) {
+		$GLOBALS['_HealthCheck_Tests']->add( $classname, $classname, $deps );
+		$GLOBALS['_HealthCheck_Tests']->enqueue( $classname );
 	}
 
 	/**
@@ -166,6 +136,9 @@ class HealthCheck {
 	 * @return none
 	 */
 	function load_tests() {
+		//Create the Test container
+		$GLOBALS['_HealthCheck_Tests'] = new HealthCheckTests();
+
 		$hc_tests_dir = plugin_dir_path(__FILE__) . 'hc-tests/';
 		//Uncomment for testing purposes only
 		//require_once($hc_tests_dir . 'dummy-test.php');
@@ -190,6 +163,7 @@ class HealthCheck {
 		require_once($hc_includes . 'class.health-check-test.php');
 		require_once($hc_includes . 'class.health-check-test-result.php');
 		require_once($hc_includes . 'versions.php');
+		require_once($hc_includes . 'class.health-check-tests.php');
 	}
 
 	/**

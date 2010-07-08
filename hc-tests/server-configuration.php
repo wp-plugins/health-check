@@ -116,7 +116,7 @@ class HealthCheck_Favicon extends HealthCheckTest {
 								$importance );
 	}
 }
-HealthCheck::register_test('HealthCheck_Favicon');
+HealthCheck::register_test('HealthCheck_Favicon', array( 'HealthCheck_HTTP_API' ) );
 
 
 /**
@@ -144,7 +144,7 @@ class HealthCheck_Cron extends HealthCheckTest {
 							$importance );
 	}
 }
-HealthCheck::register_test('HealthCheck_Cron');
+HealthCheck::register_test('HealthCheck_Cron', array( 'HealthCheck_HTTP_API' ) );
 
 
 /**
@@ -206,7 +206,7 @@ class HealthCheck_XMLRPC extends HealthCheckTest {
 		}
 	}
 }
-HealthCheck::register_test('HealthCheck_XMLRPC');
+HealthCheck::register_test('HealthCheck_XMLRPC', array( 'HealthCheck_HTTP_API' ) );
 
 
 /**
