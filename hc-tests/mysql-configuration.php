@@ -12,7 +12,6 @@
  * Check that we are running at least MySQL 5, and ideally the latest and greatest branch
  * 
  * @link http://sql-info.de/mysql/gotchas.html
- * @author Denis de Bernardy
  */
 class HealthCheck_MySQL_Version extends HealthCheckTest {
 	function run_test() {
@@ -43,7 +42,6 @@ HealthCheck::register_test('HealthCheck_MySQL_Version');
  * @link http://core.trac.wordpress.org/ticket/11819
  * @link http://php.net/manual/en/function.mysql-set-charset.php
  * @link http://php.net/manual/en/function.mysql-real-escape-string.php
- * @author Denis de Bernardy
  */
 class HealthCheck_MySQL_Escape extends HealthCheckTest {
 	function run_test() {
@@ -88,7 +86,6 @@ HealthCheck::register_test('HealthCheck_MySQL_Escape');
  * @link http://dev.mysql.com/doc/refman/5.0/en/charset-configuration.html
  * @link http://dev.mysql.com/doc/refman/5.0/en/charset-unicode-sets.html
  * @link http://bugs.mysql.com/bug.php?id=11362
- * @author Denis de Bernardy
  */
 class HealthCheck_MySQL_Charset extends HealthCheckTest {
 	function run_test() {

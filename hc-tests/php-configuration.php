@@ -12,7 +12,6 @@
  * @todo Provide a link to a codex article
  * @link http://core.trac.wordpress.org/ticket/9751
  * @link http://www.php.net/archive/2007.php#2007-07-13-1
- * @author Peter Westwood, Denis de Bernardy
  */
 class HealthCheck_PHP_Version extends HealthCheckTest {
 	function run_test() {
@@ -37,7 +36,6 @@ HealthCheck::register_test('HealthCheck_PHP_Version');
  * Check that we don't have safe_mode
  * 
  * @link http://php.net/manual/en/features.safe-mode.php
- * @author Denis de Bernardy
  */
 class HealthCheck_SafeMode extends HealthCheckTest {
 	function run_test() {
@@ -54,7 +52,6 @@ HealthCheck::register_test('HealthCheck_SafeMode');
  * Check that we don't have an open_basedir restriction
  * 
  * @link http://php.net/manual/en/features.safe-mode.php
- * @author Denis de Bernardy
  */
 class HealthCheck_OpenBaseDir extends HealthCheckTest {
 	function run_test() {
@@ -71,7 +68,6 @@ HealthCheck::register_test('HealthCheck_OpenBaseDir');
  * Check that globals aren't registered
  * 
  * @link http://php.net/manual/en/ini.core.php#ini.register-globals
- * @author Denis de Bernardy
  */
 class HealthCheck_RegisterGlobals extends HealthCheckTest {
 	function run_test() {
@@ -88,7 +84,6 @@ HealthCheck::register_test('HealthCheck_RegisterGlobals');
  * Check that magic quotes are turned off
  * 
  * @link http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc
- * @author Denis de Bernardy
  */
 class HealthCheck_MagicQuotes extends HealthCheckTest {
 	function run_test() {
@@ -105,7 +100,6 @@ HealthCheck::register_test('HealthCheck_MagicQuotes');
  * Check that long arrays are turned off
  * 
  * @link http://php.net/manual/en/ini.core.php#ini.register-long-arrays
- * @author Denis de Bernardy
  */
 class HealthCheck_LongArrays extends HealthCheckTest {
 	function run_test() {
@@ -121,7 +115,6 @@ HealthCheck::register_test('HealthCheck_LongArrays');
 /**
  * Check that there is enough memory
  * 
- * @author Denis de Bernardy
  */
 class HealthCheck_MemoryLimit extends HealthCheckTest {
 	function run_test() {
@@ -137,7 +130,6 @@ HealthCheck::register_test('HealthCheck_MemoryLimit');
 /**
  * Check that the memory limit can be overridden
  * 
- * @author Denis de Bernardy
  */
 class HealthCheck_MemoryLimitOverride extends HealthCheckTest {
 	function run_test() {
@@ -159,7 +151,6 @@ HealthCheck::register_test('HealthCheck_MemoryLimitOverride');
  * Check that user aborts can be ignored
  * 
  * @link http://php.net/manual/en/function.ignore-user-abort.php
- * @author Denis de Bernardy
  */
 class HealthCheck_UserAbort extends HealthCheckTest {
 	function run_test() {
@@ -180,7 +171,6 @@ HealthCheck::register_test('HealthCheck_UserAbort');
  * Check that the max execution time can be overridden
  * 
  * @link http://php.net/manual/en/function.set-time-limit.php
- * @author Denis de Bernardy
  */
 class HealthCheck_MaxExecutionTime extends HealthCheckTest {
 	function run_test() {
@@ -199,7 +189,6 @@ HealthCheck::register_test('HealthCheck_MaxExecutionTime');
 /**
  * Check the max upload size and the post max size
  * 
- * @author Denis de Bernardy
  */
 class HealthCheck_UploadSize extends HealthCheckTest {
 	function run_test() {
@@ -224,7 +213,6 @@ HealthCheck::register_test('HealthCheck_UploadSize');
  * @link http://php.net/manual/en/intro.mbstring.php
  * @link http://php.net/manual/en/intro.iconv.php
  * @link http://php.net/manual/en/reference.pcre.pattern.modifiers.php
- * @author Denis de Bernardy
  */
 class HealthCheck_MB_String extends HealthCheckTest {
 	function run_test() {
@@ -311,7 +299,6 @@ HealthCheck::register_test('HealthCheck_PHP_libxml2_XMLRPC');
  * Check that we've the GD library
  * 
  * @link http://php.net/manual/en/book.image.php
- * @author Denis de Bernardy
  */
 class HealthCheck_GD extends HealthCheckTest {
 	function run_test() {
@@ -328,7 +315,6 @@ HealthCheck::register_test('HealthCheck_GD');
  * Check that we've the JSON library
  * 
  * @link http://php.net/manual/en/book.image.php
- * @author Denis de Bernardy
  */
 class HealthCheck_JSON extends HealthCheckTest {
 	function run_test() {
@@ -345,7 +331,6 @@ HealthCheck::register_test('HealthCheck_JSON');
  * Check if we've the Suhosin patch
  * 
  * @link http://www.hardened-php.net/suhosin/
- * @author Denis de Bernardy
  */
 class HealthCheck_Suhosin extends HealthCheckTest {
 	function run_test() {
@@ -400,7 +385,6 @@ HealthCheck::register_test('HealthCheck_Suhosin');
  * Check that we've the zlib library
  *
  * @link http://php.net/manual/en/book.zlib.php
- * @author Sudar
  */
 class HealthCheck_zlib extends HealthCheckTest {
 	function run_test() {

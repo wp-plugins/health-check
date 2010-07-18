@@ -8,8 +8,6 @@
 
 /**
  * Check that we are running the latest and greatest branch of Apache
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_Apache_Version extends HealthCheckTest {
 	function run_test() {
@@ -37,7 +35,6 @@ HealthCheck::register_test('HealthCheck_Apache_Version');
  * Check that we are retrieving the correct IP Address behind a load balancer
  * 
  * @link http://core.trac.wordpress.org/ticket/9235
- * @author Denis de Bernardy
  */
 class HealthCheck_IP_Address extends HealthCheckTest {
 	function run_test() {
@@ -68,7 +65,6 @@ HealthCheck::register_test('HealthCheck_IP_Address');
  * Check that the HTTP API works
  * 
  * @link http://wordpress.org/extend/plugins/core-control/
- * @author Denis de Bernardy
  */
 class HealthCheck_HTTP_API extends HealthCheckTest {
 	function run_test() {
@@ -92,7 +88,6 @@ HealthCheck::register_test('HealthCheck_HTTP_API');
  * 
  * @link http://codex.wordpress.org/Creating_a_Favicon
  * @link http://core.trac.wordpress.org/ticket/3426
- * @author Denis de Bernardy
  */
 class HealthCheck_Favicon extends HealthCheckTest {
 	function run_test() {
@@ -123,7 +118,6 @@ HealthCheck::register_test('HealthCheck_Favicon', array( 'HealthCheck_HTTP_API' 
  * Check that the cron works
  * 
  * @link http://wordpress.org/extend/plugins/core-control/
- * @author Denis de Bernardy
  */
 class HealthCheck_Cron extends HealthCheckTest {
 	function run_test() {
@@ -149,8 +143,6 @@ HealthCheck::register_test('HealthCheck_Cron', array( 'HealthCheck_HTTP_API' ) )
 
 /**
  * Check that the XML-RPC API works
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_XMLRPC extends HealthCheckTest {
 	function run_test() {
@@ -211,8 +203,6 @@ HealthCheck::register_test('HealthCheck_XMLRPC', array( 'HealthCheck_HTTP_API' )
 
 /**
  * Check the memcache status
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_Memcache_Status extends HealthCheckTest {
 	function run_test() {
@@ -261,8 +251,6 @@ HealthCheck::register_test('HealthCheck_Memcache_Status');
 
 /**
  * Check that the wp-content dir and/or the uploads dir is writable
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_Permissions extends HealthCheckTest {
 	function run_test() {
@@ -311,8 +299,6 @@ HealthCheck::register_test('HealthCheck_Permissions');
 
 /**
  * Check for executable files
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_Executable extends HealthCheckTest {
 	function run_test() {
@@ -362,7 +348,6 @@ HealthCheck::register_test('HealthCheck_Executable');
  * Check for apache functions and mod_rewrite
  * 
  * @link http://php.net/manual/en/ref.apache.php
- * @author Denis de Bernardy
  */
 class HealthCheck_ModRewrite extends HealthCheckTest {
 	function run_test() {
@@ -430,7 +415,6 @@ HealthCheck::register_test('HealthCheck_ModRewrite');
  * 
  * @link http://wordpress.org/search/mod_security?forums=1
  * @link http://wordpress.org/support/topic/256526
- * @author Denis de Bernardy
  */
 class HealthCheck_ModSecurity extends HealthCheckTest {
 	function run_test() {
@@ -492,7 +476,6 @@ HealthCheck::register_test('HealthCheck_ModSecurity');
  * Check that the Webserver's process user is the same as the file owner
  * 
  * @link http://httpd.apache.org/docs/2.2/suexec.html
- * @author Denis de Bernardy
  */
 class HealthCheck_ProcessUser extends HealthCheckTest {
 	function run_test() {

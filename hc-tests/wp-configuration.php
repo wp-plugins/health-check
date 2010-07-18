@@ -11,7 +11,6 @@
  * 
  * @link ftp://ftp.research.microsoft.com/pub/tr/TR-2007-01.pdf
  * @link http://www.w3.org/Provider/Style/URI
- * @author Denis de Bernardy
  */
 class HealthCheck_Permalinks extends HealthCheckTest {
 	function run_test() {
@@ -31,7 +30,6 @@ HealthCheck::register_test('HealthCheck_Permalinks');
  * Check that we're not using verbose rewrite rules
  * 
  * @todo find trac tickets that highlight verbose rule problems
- * @author Denis de Bernardy
  */
 class HealthCheck_Verbose_Rules extends HealthCheckTest {
 	function run_test() {
@@ -54,7 +52,6 @@ HealthCheck::register_test('HealthCheck_Verbose_Rules');
  * 
  * @link http://code.google.com/p/memcached/wiki/FAQ
  * @link http://www.php.net/manual/en/function.memcache-setcompressthreshold.php
- * @author Denis de Bernardy
  */
 class HealthCheck_Oversized_Options extends HealthCheckTest {
 	function run_test() {
@@ -88,8 +85,6 @@ HealthCheck::register_test('HealthCheck_Oversized_Options');
 
 /**
  * Check that the RSS feed doesn't contain leading white space
- * 
- * @author Denis de Bernardy
  */
 class HealthCheck_RSS_Feed extends HealthCheckTest {
 	function run_test() {
@@ -113,7 +108,6 @@ HealthCheck::register_test('HealthCheck_RSS_Feed');
  * Check for inactive widgets (this can slow down the widgets screen tremendously)
  * 
  * @link http://core.trac.wordpress.org/ticket/10021
- * @author Denis de Bernardy
  */
 class HealthCheck_InactiveWidgets extends HealthCheckTest {
 	function run_test() {
@@ -133,7 +127,6 @@ HealthCheck::register_test('HealthCheck_InactiveWidgets');
  * Check for drop in files
  * 
  * @link http://core.trac.wordpress.org/ticket/11861
- * @author Denis de Bernardy
  */
 class HealthCheck_DropInFiles extends HealthCheckTest {
 	function run_test() {
