@@ -19,11 +19,22 @@ class HealthCheck {
 	function action_admin_notice() {
 		global $wpdb;
 		$php_version_check = version_compare(HEALTH_CHECK_PHP_VERSION, PHP_VERSION, '<');
-		$mysql_version_check = version_compare(HEALTH_CHECK_MYSQL_VERSION, $wpdb->db_version(), '<');
+		$mysql_version_check = version_compare(HEALTH_CHECK_MYSQL_VERSION, $wpdb->db_version(), '<') || file_exists( WP_CONTENT_DIR . '/db.php' );
+		$message = "<div id='health-check-warning' class='updated'>";
 		if ( !$php_version_check ) 
-			echo "<div id='health-check-warning-php' class='updated fade'><p><strong>".__('Warning:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s. WordPress will require PHP version %2$s from version 3.2 onwards ', 'health-check'), PHP_VERSION, HEALTH_CHECK_PHP_VERSION)."</p></div>";
+			$message .= "<p><strong>".__('Warning:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s. WordPress 3.2 will require PHP version %2$s.', 'health-check'), PHP_VERSION, HEALTH_CHECK_PHP_VERSION)."</p>";
 		if ( !$mysql_version_check )
-			echo "<div id='health-check-warning-mysql' class='updated fade'><p><strong>".__('Warning:', 'health-check')."</strong> ".sprintf(__('Your server is running mySQL version %1$s. WordPress will require mySQL version %2$s from version 3.2 onwards ', 'health-check'), $wpdb->db_version(), HEALTH_CHECK_MYSQL_VERSION)."</p></div>";
+			$message .= "<p><strong>".__('Warning:', 'health-check')."</strong> ".sprintf(__('Your server is running mySQL version %1$s. WordPress 3.2 will require mySQL version %2$s', 'health-check'), $wpdb->db_version(), HEALTH_CHECK_MYSQL_VERSION)."</p>";
+		
+		if ( $php_version_check && $mysql_version_check)
+			$message .= "<p><strong>".__('Excellent:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s and mySQL version %2$s which will be great for WordPress 3.2 onward. ', 'health-check'), PHP_VERSION, HEALTH_CHECK_MYSQL_VERSION)."</p>";
+		else
+			$message .= "<p>".__('Once your host has upgraded your server you can re-activate the plugin to check again.', 'health-check')."</p>";
+
+		$message .= "</div>";
+
+		echo $message;
+		
 		deactivate_plugins(__FILE__);
 	}
 
