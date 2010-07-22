@@ -29,11 +29,11 @@ class HealthCheck {
 			$message .= "<p><strong>".__('Warning:', 'health-check')."</strong> ".sprintf(__('Your server is running MySQL version %1$s. WordPress 3.2 will require MySQL version %2$s', 'health-check'), $wpdb->db_version(), HEALTH_CHECK_MYSQL_VERSION)."</p>";
 			
 			if ( $db_dropin )
-				$message .= "<p><strong>".__('Note:', 'health-check')."</strong> ".__('You are using a <code>wp-content/db.php</code> drop-in which may not being using a MySQL database if so you can ignore this warning.', 'health-check')."</p>";
+				$message .= "<p><strong>".__('Note:', 'health-check')."</strong> ".__('You are using a <code>wp-content/db.php</code> drop-in which may not being using a MySQL database.', 'health-check')."</p>";
 		}
 
 		if ( $php_version_check && $mysql_version_check )
-			$message .= "<p><strong>".__('Excellent:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s and MySQL version %2$s which will be great for WordPress 3.2 onward. ', 'health-check'), PHP_VERSION, $wpdb->db_version())."</p>";
+			$message .= "<p><strong>".__('Excellent:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s and MySQL version %2$s which will be great for WordPress 3.2 onward.', 'health-check'), PHP_VERSION, $wpdb->db_version())."</p>";
 		else
 			$message .= "<p>".__('Once your host has upgraded your server you can re-activate the plugin to check again.', 'health-check')."</p>";
 
