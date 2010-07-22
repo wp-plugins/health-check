@@ -33,7 +33,7 @@ class HealthCheck {
 		}
 
 		if ( $php_version_check && $mysql_version_check )
-			$message .= "<p><strong>".__('Excellent:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s and mySQL version %2$s which will be great for WordPress 3.2 onward. ', 'health-check'), PHP_VERSION, $wpdb->db_version())."</p>";
+			$message .= "<p><strong>".__('Excellent:', 'health-check')."</strong> ".sprintf(__('Your server is running PHP version %1$s and MySQL version %2$s which will be great for WordPress 3.2 onward. ', 'health-check'), PHP_VERSION, $wpdb->db_version())."</p>";
 		else
 			$message .= "<p>".__('Once your host has upgraded your server you can re-activate the plugin to check again.', 'health-check')."</p>";
 
