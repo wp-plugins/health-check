@@ -81,42 +81,69 @@ class HealthCheck {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
-		$notices	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
+		$notices            = empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )           ? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
 		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Tests']->tests_run, $GLOBALS['_HealthCheck_Tests']->assertions, $passed, $errors, $recommendations, $notices );?></p>
-<?php
-		if ($errors) {
-			echo '<div id="health-check-errors">';
-			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] as $res) {
-				echo wpautop(sprintf( __('ERROR: %s'), $res->message));
+        <?php // Do we need to move these CSS styles to a seperate CSS file? ?>
+		<style type="text/css">
+
+			.error td{
+				background:#FFEBE8;
 			}
-			echo '</div>';
+
+			.recommendation td{
+				background:#FFFFE0;
+			}
+
+			.notice{
+				
+			}
+		</style>
+
+		<table class="widefat" cellspacing="0">
+			<thead>
+				<tr>
+					<th class="name" scope="col">Type</th>
+					<th class="name" scope="col">Description</th>
+				</tr>
+			</thead>
+            <tbody>
+		<?php
+		if ($errors) {
+			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] as $res) {
+				echo wpautop(sprintf( __('<tr class="error"><td>ERROR</td><td>%s</td></tr>'), $res->message));
+			}
 		}
 		if ($recommendations) {
-			echo '<div id="health-check-recommendations">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] as $res) {
-				echo wpautop(sprintf( __('RECOMMENDATION: %s'), $res->message));
+				echo wpautop(sprintf( __('<tr class="recommendation"><td>RECOMMENDATION</td><td>%s</td></tr>'), $res->message));
 			}
-			echo '</div>';
 		}
 		if ($notices) {
-			echo '<div id="health-check-notices">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] as $res) {
 				if ( !empty($res->message) )
-					echo wpautop(sprintf( __('NOTICE: %s'), $res->message));
+					echo wpautop(sprintf( __('<tr class="notice"><td>NOTICE</td><td>%s</td></tr>'), $res->message));
 			}
-			echo '</div>';
 		}
 		if ($passed) {
-			echo '<div id="health-check-ok">';
 			foreach ($GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] as $res) {
 				if ( !empty($res->message) )
 					echo wpautop($res->message);
 			}
-			echo '</div>';
 		}
+
+		?>
+            </tbody>
+			<tfoot>
+				<tr>
+					<th class="name" scope="col">Type</th>
+					<th class="name" scope="col">Description</th>
+				</tr>
+			</tfoot>
+		</table>
+		<?php
 	}
-	
+
 	/**
 	 * Make note of the name of the registered test class ready for when we want to run the tests.
 	 * 
