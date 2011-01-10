@@ -4,7 +4,7 @@
 	Plugin URI: http://wordpress.org/extend/plugins/health-check/
 	Description: Checks the health of your WordPress install
 	Author: The Health Check Team
-	Version: 0.1-alpha
+	Version: 0.2-alpha
 	Author URI: http://wordpress.org/extend/plugins/health-check/
 	Text Domain: health-check
 	Domain Path: /lang
@@ -18,11 +18,17 @@ class HealthCheck {
 	var $test_results = array();
 	
 	function action_plugins_loaded() {
-		add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
+		if ( ! is_multisite() )
+			add_action('admin_menu', array('HealthCheck', 'action_admin_menu'));
+		else
+			add_action('network_admin_menu', array('HealthCheck', 'action_admin_menu'));
+
 		$GLOBALS['_HealthCheck_Instance'] = new HealthCheck();
 		load_plugin_textdomain('health-check', false, dirname(plugin_basename(__FILE__)) . '/lang');
 		foreach ( array('admin_post_health-check', 'admin_post_nopriv_health-check') as $hook )
 			add_action($hook, array('HealthCheck', 'http_test'));
+
+		add_action( 'admin_ajax_health-check-run-tests', array('HealthCheck', 'ajax_run_tests') );
 		HealthCheck::init_cron_test();
 		wp_cache_add_non_persistent_groups(array('health_check'));
 	}
@@ -30,7 +36,7 @@ class HealthCheck {
 	function action_admin_menu() {
 		if ( function_exists('is_super_admin') && !is_super_admin() )
 			return; // the actual tests are only the super admin's business
-		add_management_page(__('Health Check','health-check'), __('Health Check','health-check'), 'manage_options', 'health-check', array('HealthCheck','display_page'));
+		add_dashboard_page(__('Health Check','health-check'), __('Health Check','health-check'), 'manage_options', 'health-check', array('HealthCheck','display_page'));
 	}
 
 	function display_page() {
@@ -55,19 +61,48 @@ class HealthCheck {
 		if (0 == $step) {
 ?>
 		<p><?php _e('Click the button below to run a number of tests on your site and report back on any issues.','health-check');?></p>
-		<p class="submit"><a type="submit" class="button-primary" href="<?php echo wp_nonce_url( admin_url( 'tools.php?page=health-check&step=1'), 'health-check');?>"><?php _e('Run Health Checks','health-check') ?></a></p>
+		<p class="submit"><a type="submit" class="button-primary" href="<?php echo HealthCheck::admin_page_url( 1 );?>"><?php _e('Run Health Checks','health-check') ?></a></p>
 <?php
 		} elseif ( 1 == $step ) {
+			// TODO: AJAX Voodoo
 			//Lazy load our includes and all the tests we will run
 			HealthCheck::load_includes();
 			HealthCheck::load_tests();
 			HealthCheck::run_tests();
+			HealthCheck::save_results();
+			?>
+		<p><?php _e('Click the button below to view the results.','health-check');?></p>
+		<p class="submit"><a type="submit" class="button-primary" href="<?php echo HealthCheck::admin_page_url( 2 );?>"><?php _e('View Results','health-check') ?></a></p>
+<?php
+		} elseif ( 2 == $step ) {
+			HealthCheck::load_includes();
+			HealthCheck::load_tests();
+			HealthCheck::load_results();
 			HealthCheck::output_test_stats();
 		}
 ?>
 	</div>
 <?php
 	}
+
+	function ajax_run_tests() {
+		if ( ! check_ajax_referrer( 'health-check-run-tests') ) 
+			die( -1 );
+		
+		//Lazy load our includes and all the tests we will run
+		HealthCheck::load_includes();
+		HealthCheck::load_tests();
+		HealthCheck::run_tests();
+		HealthCheck::save_results();
+	}
+
+	function admin_page_url( $step ) {
+		if ( ! is_multisite() )
+			return wp_nonce_url( admin_url( 'index.php?page=health-check&step=' . $step ), 'health-check');
+		else
+			return wp_nonce_url( network_admin_url( 'index.php?page=health-check&step=' . $step ), 'health-check');
+	}
+	
 	/**
 	 * Run all the tests in the correct order based on the dependancies
 	 */
@@ -76,15 +111,22 @@ class HealthCheck {
 		$GLOBALS['_HealthCheck_Tests']->do_items( );
 	}
 
+	function save_results() {
+		set_transient( 'health-check-results', $GLOBALS['_HealthCheck_Instance']->test_results, 60 );
+	}	
+
+	function load_results() {
+		$GLOBALS['_HealthCheck_Instance']->test_results = get_transient( 'health-check-results', $GLOBALS['_HealthCheck_Instance']->test_results, 60 );
+	}	
 	
 	function output_test_stats() {
 		$passed				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] )				? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_OK] );
 		$errors				= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] )			? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_ERROR] );
 		$recommendations	= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] )	? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_RECOMMENDATION] );
-		$notices            = empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )           ? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
+		$notices			= empty( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] )           ? 0 : count( $GLOBALS['_HealthCheck_Instance']->test_results[HEALTH_CHECK_INFO] );
 ?>
 		<p><?php echo sprintf( __('Out of %1$d tests with %2$d assertions run: %3$d passed, %4$d detected errors, %5$d failed with recommendations, and %6$d raised notices.','health-check'), $GLOBALS['_HealthCheck_Tests']->tests_run, $GLOBALS['_HealthCheck_Tests']->assertions, $passed, $errors, $recommendations, $notices );?></p>
-        <?php // Do we need to move these CSS styles to a seperate CSS file? ?>
+		<?php // Do we need to move these CSS styles to a seperate CSS file? ?>
 		<style type="text/css">
 
 			.error td{
