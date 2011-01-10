@@ -348,6 +348,7 @@ HealthCheck::register_test('HealthCheck_Executable');
  * Check for apache functions and mod_rewrite
  * 
  * @link http://php.net/manual/en/ref.apache.php
+ * @todo Remove error suppression
  */
 class HealthCheck_ModRewrite extends HealthCheckTest {
 	function run_test() {
